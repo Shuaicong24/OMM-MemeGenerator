@@ -1,0 +1,25 @@
+h3 {
+    margin: 50px;
+}
+
+.form {
+    max-width: 500px;
+    min-width: 300px;
+    max-height: 700px;
+    width: 30%;
+    height: 60%;
+    margin: 100px auto;
+}
+
+.mb-3 {
+    text-align: left;
+}
+
+.d-grid {
+    margin-top: 50px;
+}
+
+.error-message {
+    text-align: left;
+    color: red;
+}
