@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "startdev": "node ./bin/www",
-    "start": "SET DBPORT=65535 && node ./bin/www"
+    "start": "DBPORT=65535 && node ./bin/www"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

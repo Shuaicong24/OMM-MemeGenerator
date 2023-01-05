@@ -9,7 +9,7 @@ import "../styles/post.css";
 import logo from '../logo.jpg';
 import Nav from "react-bootstrap/Nav";
 import React from "react";
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 
 function Post() {
 

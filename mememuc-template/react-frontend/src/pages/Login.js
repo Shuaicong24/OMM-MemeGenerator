@@ -21,9 +21,9 @@ class Login extends React.Component {
 
     handleSubmit(e) {
         e.preventDefault();
-        const { username, password } = this.state;
+        const {username, password} = this.state;
         console.log(username, password);
-        fetch("http://localhost:3005/login-user", {
+        fetch("http://localhost:3002/login-user", {
             method: "POST",
             crossDomain: true,
             headers: {
@@ -58,7 +58,7 @@ class Login extends React.Component {
                         type="text"
                         className="form-control"
                         placeholder="Username"
-                        onChange={(e) => this.setState({ username: e.target.value })}
+                        onChange={(e) => this.setState({username: e.target.value})}
                     />
                 </div>
 
@@ -68,7 +68,7 @@ class Login extends React.Component {
                         type="password"
                         className="form-control"
                         placeholder="Enter password"
-                        onChange={(e) => this.setState({ password: e.target.value })}
+                        onChange={(e) => this.setState({password: e.target.value})}
                     />
                 </div>
 

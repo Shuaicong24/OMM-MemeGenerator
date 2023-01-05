@@ -41,18 +41,26 @@ const notifier = require("node-notifier");
 const JWT_SECRET =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoibWVtZSBnZW5lcmF0b3IiLCJpYXQiOjE2ODU1NzA0MDB9.fkz2BwlltKHTWAg-QfO_UdB0fTBvT1f0Z3gbL_zJ2fE";
 
-mongoose
-    .connect("mongodb://localhost:27017/omm-2223", {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(() => {
-      console.log("connected to MongoDB");
-    })
-    .catch((err) => {
-      console.log("connected failed");
-      console.log(err);
-    });
+// mongoose
+//     .connect("mongodb://localhost:27017/omm-2223", {
+//       useNewUrlParser: true,
+//       useUnifiedTopology: true,
+//     })
+//     .then(() => {
+//       console.log("connected to MongoDB");
+//     })
+//     .catch((err) => {
+//       console.log("connected failed");
+//       console.log(err);
+//     });
+
+mongoose.connect(`mongodb://localhost:27017/omm-2223`);
+
+const db = mongoose.connection;
+db.on("error", console.error.bind(console, "MongoDB connection error: "));
+db.once("open", function () {
+  console.log("MongoDB connected successfully");
+});
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -70,10 +78,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(function(req,res,next){
-  req.db = db;
-  next();
-});
+// app.use(function(req,res,next){
+//   req.db = db;
+//   next();
+// });
 
 
 // the login middleware. Requires BasicAuth authentication
@@ -167,8 +175,8 @@ app.post("/userData", async (req, res) => {
   } catch (error) {}
 });
 
-app.listen(3005, () => {
-  console.log("Server is running at port 3005");
+app.listen(3002, () => {
+  console.log("Server is running at port 3002");
 });
 
 // catch 404 and forward to error handler
@@ -185,6 +193,10 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to application." });
 });
 
 module.exports = app;
