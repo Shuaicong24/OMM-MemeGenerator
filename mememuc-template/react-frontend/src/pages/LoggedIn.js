@@ -1,3 +1,8 @@
+/**
+ * Code snippets:
+ * https://github.com/the-debug-arena/login-registration/blob/main/src/components/userDetails.js
+ * */
+
 import React from "react";
 
 class LoggedIn extends React.Component {
@@ -21,16 +26,18 @@ class LoggedIn extends React.Component {
         token: window.localStorage.getItem("token"),
       }),
     })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data, "userData");
-        this.setState({ userData: data.data });
-      });
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data, "userData");
+          this.setState({ userData: data.data });
+        });
   }
 
   render() {
     return (
       <div>
+        Name<h1>{this.state.userData.username}</h1>
+        Password <h1>{this.state.userData.password}</h1>
         <h1>TODO: Need to show personal posts</h1>
       </div>
     );

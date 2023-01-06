@@ -1,7 +1,11 @@
+/**
+ * Code snippets:
+ * https://github.com/the-debug-arena/login-registration/blob/main/src/components/signup_component.js
+ * */
+
 import React from "react";
 import "../styles/form.css";
 
-// TODO: add error message, e.g. User already exists.
 class Signup extends React.Component {
   constructor(props) {
     super(props);

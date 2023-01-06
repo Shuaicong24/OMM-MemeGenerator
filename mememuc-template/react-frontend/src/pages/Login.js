@@ -1,14 +1,12 @@
 /**
  * References:
- * https://codepen.io/rares-lungescu/pen/KLbMvo
- *
  * https://www.youtube.com/watch?v=6oTDAyuQ5iw
+ * https://github.com/the-debug-arena/login-registration/blob/main/src/components/login_component.js
  * */
 
 import React from "react";
 import "../styles/form.css";
 
-// TODO: add error message, e.g. User not found. Invalid password.
 class Login extends React.Component {
     constructor(props) {
         super(props);
@@ -21,7 +19,7 @@ class Login extends React.Component {
 
     handleSubmit(e) {
         e.preventDefault();
-        const {username, password} = this.state;
+        const { username, password } = this.state;
         console.log(username, password);
         fetch("http://localhost:3002/login-user", {
             method: "POST",
@@ -38,7 +36,7 @@ class Login extends React.Component {
         })
             .then((res) => res.json())
             .then((data) => {
-                console.log(data, "userRegister");
+                console.log(data, "userLogin");
                 if (data.status == "ok") {
                     alert("login successful");
                     window.localStorage.setItem("token", data.data);

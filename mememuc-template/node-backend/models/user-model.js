@@ -2,6 +2,7 @@
  *  Define a collection schema.
  *  References:
  *  https://www.youtube.com/watch?v=adMD46G5BXU
+ *  https://github.com/the-debug-arena/login-registration-server-node/blob/main/userDetails.js
  */
 
 const mongoose = require('mongoose');
