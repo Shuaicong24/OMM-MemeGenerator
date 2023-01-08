@@ -4,7 +4,7 @@
     margin: 5px;
 }
 
-.templateArea {
+.template-area {
     overflow-x: auto;
     overflow-y: hidden;
     height: 180px;
@@ -17,6 +17,22 @@
     display: flex;
 }
 
-.imgArea {
-    border-color: red;
+.meme-area {
+    position: relative;
+}
+
+.top-caption {
+    position: absolute;
+    top: 10%;
+    left: 0;
+    width: 100%;
+    font-size: 40px;
+}
+
+.bottom-caption {
+    position: absolute;
+    top: 60%;
+    left: 0;
+    width: 100%;
+    font-size: 40px;
 }

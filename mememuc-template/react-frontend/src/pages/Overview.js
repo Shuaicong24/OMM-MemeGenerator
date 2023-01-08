@@ -20,11 +20,6 @@ import Post from "./Post";
 
 function Overview() {
 
-    const [items, setItems] = useState([]);
-    const fetchData = () => {
-
-    };
-
     return (
         <div>
             <Navbar className="top">
@@ -41,8 +36,6 @@ function Overview() {
                     </Nav>
                 </Container>
             </Navbar>
-            <Post/>
-
 
         </div>
 
