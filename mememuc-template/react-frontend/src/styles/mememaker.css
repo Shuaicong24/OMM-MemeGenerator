@@ -4,6 +4,12 @@
     margin: 5px;
 }
 
+.thumbnail {
+    width: 100%;
+    display: inline;
+    margin: 5px;
+}
+
 .template-area {
     overflow-x: auto;
     overflow-y: hidden;
@@ -35,4 +41,8 @@
     left: 0;
     width: 100%;
     font-size: 40px;
+}
+
+Button {
+    margin: 5px;
 }

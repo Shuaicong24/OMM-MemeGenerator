@@ -3,10 +3,13 @@
  * https://www.youtube.com/watch?v=rtQKP1we-Dk
  * https://stackoverflow.com/questions/43992427/how-to-display-a-image-selected-from-input-type-file-in-reactjs
  * https://gist.github.com/petehouston/85dd33210c0764eeae55
+ * https://react-bootstrap.github.io/components/modal/
  * */
 
 import React, {useEffect, useState} from "react";
 import "../styles/mememaker.css"
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 
 const Meme = ({template, onClick}) => {
     return (
@@ -25,6 +28,30 @@ function MemeMaker() {
     const [topText, setTopText] = useState('');
     const [bottomText, setBottomText] = useState('');
     const [image, setImage] = useState(null);
+    const [uploaded, setUploaded] = useState(false);
+    const [show, setShow] = useState(false);
+
+    const handleClose = () => {
+        setShow(false);
+        setUploaded(false);
+        setImage(null);
+    };
+    const handleShow = () => {
+        setShow(true);
+        setUploaded(false);
+        setImage(null);
+    };
+    const handleUpload = () => {
+        setShow(false);
+        setTemplate(null);
+        setUploaded(true);
+        setImage(image);
+    };
+
+
+    const handleGenerate = () => {
+
+    }
 
     useEffect(() => {
         fetch("https://api.imgflip.com/get_memes").then(x =>
@@ -34,7 +61,6 @@ function MemeMaker() {
 
     const onImageChange = e => {
         if (e.target.files && e.target.files[0]) {
-            setTemplate(null);
             setImage(URL.createObjectURL(e.target.files[0]));
         }
     };
@@ -61,10 +87,14 @@ function MemeMaker() {
                 <form onSubmit={async e => {
                     e.preventDefault();
                 }}>
+                    <Button variant="primary" onClick={handleShow}>
+                        Upload a new template
+                    </Button>
+
                     <div className="meme-area">
                         {template && <Meme template={template}/>}
                         {template && <p>{template.name}</p>}
-                        {!template && image && <img className="row" src={image} alt={"image"}/>}
+                        {!template && uploaded && image && <img className="row" src={image} alt={"image"}/>}
 
                         <div className="top-caption">{topText}</div>
                         <div className="bottom-caption">{bottomText}</div>
@@ -72,26 +102,46 @@ function MemeMaker() {
 
 
                     <br/>
-                    <button>Upload a new template</button>
                     <input
                         placeholder="top text"
                         value={topText}
                         onChange={e => setTopText(e.target.value)}
                     />
+                    <br/>
                     <input
                         placeholder="bottom text"
                         value={bottomText}
                         onChange={e => setBottomText(e.target.value)}
                     />
-                    <button type="submit">Create meme</button>
+                    <br/>
+
+                <Button onClick={clear}>Clear</Button>
+                    <Button type="submit" onClick={handleGenerate}>Generate meme</Button>
+
                 </form>
-
-                <button onClick={clear}>Clear</button>
-                <input type="file" onChange={onImageChange}/>
-
 
             </div>
 
+
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Choose a way to upload</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <input type="file" onChange={onImageChange}/>
+                    <div>
+                        {image && <img className="thumbnail" src={image} alt={"image"}/>}
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={handleUpload}>
+                        Upload
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
 
     )
