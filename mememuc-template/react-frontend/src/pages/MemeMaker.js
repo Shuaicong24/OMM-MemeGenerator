@@ -12,6 +12,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 
 const Meme = ({template, onClick}) => {
+
     return (
         <img
             className="row"
@@ -68,6 +69,13 @@ function MemeMaker() {
     function clear() {
         setTopText('');
         setBottomText('');
+    }
+
+    function getRandomMeme() {
+        const index = Math.floor(Math.random()*templates.length);
+        const randomMeme = templates[index];
+        console.log(randomMeme);
+        setTemplate(randomMeme)
     }
 
     return (
@@ -142,6 +150,8 @@ function MemeMaker() {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+            <canvas className="my-canvas"></canvas>
         </div>
 
     )

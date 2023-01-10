@@ -13,6 +13,7 @@ import Details from './pages/Details';
 import Navbar from './pages/Nav';
 import LoggedIn from "./pages/LoggedIn";
 import MemeMaker from "./pages/MemeMaker";
+import Meme from './pages/Meme';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path='/details' element={<Details />} />
             <Route path='/userDetails' element={<LoggedIn/>}/>
             <Route path='/mememaker' element={<MemeMaker/>} />
+            <Route path='/meme' element={<Meme/>} />
 
         </Routes>
     </div>
