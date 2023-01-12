@@ -1,17 +1,25 @@
 /**
  * References:
- * https://www.youtube.com/watch?v=rtQKP1we-Dk
- * https://stackoverflow.com/questions/43992427/how-to-display-a-image-selected-from-input-type-file-in-reactjs
- * https://gist.github.com/petehouston/85dd33210c0764eeae55
  * https://react-bootstrap.github.io/components/modal/
- * https://stackoverflow.com/questions/23104582/scaling-an-image-to-fit-on-canvas
+ * Basic skeleton:
+ * https://www.youtube.com/watch?v=rtQKP1we-Dk
  * https://codesandbox.io/s/loving-pare-ifwr1?file=/src/App.js:445-842
+ * Issues fixed:
+ * https://stackoverflow.com/questions/43992427/how-to-display-a-image-selected-from-input-type-file-in-reactjs
+ * https://stackoverflow.com/questions/23104582/scaling-an-image-to-fit-on-canvas
+ * https://stackoverflow.com/questions/29334416/bootstrap-modal-dialog-center-image-in-body
+ * Get image data on the canvas (Tainted canvases may not be exported):
+ * https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
+ * Download meme:
+ * https://www.youtube.com/watch?v=wsGrRrWe86A
+ *
  * */
 
 import React, {useEffect, useRef, useState} from "react";
 import "../styles/mememaker.css"
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import { saveAs } from 'file-saver';
 
 const Meme = ({template, onClick}) => {
     return (
@@ -30,30 +38,51 @@ function MemeMaker() {
     const [topText, setTopText] = useState('');
     const [bottomText, setBottomText] = useState('');
     const [image, setImage] = useState(null);
-    const [show, setShow] = useState(false);
-    const canvas = useRef(null);
+    const [showUpload, setShowUpload] = useState(false);
+    const canvasRef = useRef(null);
     const [meme, setMeme] = useState(null);
+    const [showGenerate, setShowGenerate] = useState(false);
+    const [done, setDone] = useState('');
 
-    const handleClose = () => {
-        setShow(false);
+    const handleCloseUpload = () => {
+        setShowUpload(false);
         setImage(null);
     };
-    const handleShow = () => {
-        setShow(true);
+    const handleShowUpload = () => {
+        setShowUpload(true);
         setImage(null);
     };
     const handleUpload = () => {
         const memeImage = new Image();
-        setShow(false);
+        setShowUpload(false);
         setTemplate(null);
         setImage(image);
         memeImage.src = image.toString();
+        memeImage.crossOrigin = "anonymous"
         setMeme(memeImage);
     };
 
-    const handleGenerate = () => {
-
+    const handleCloseGenerate = () => {
+        setShowGenerate(false);
+    }
+    const handleShowGenerate = () => {
+        setShowGenerate(true);
+        const canvas = document.getElementById('meme-canvas');
+        const dataURL = canvas.toDataURL();
+        setDone(dataURL);
     };
+    const handleDownload = () => {
+        const done = document.getElementById("done");
+        let imgPath = done.getAttribute('src');
+        console.log('path: ', imgPath);
+        let fileName = getFileName(imgPath);
+        saveAs(imgPath, fileName)
+    };
+
+    function getFileName(str) {
+        return str.substring(str.lastIndexOf('/')+1);
+
+    }
 
     useEffect(() => {
         fetch("https://api.imgflip.com/get_memes").then(x =>
@@ -114,6 +143,7 @@ function MemeMaker() {
                                       setTemplate(template);
                                       const memeImage = new Image();
                                       memeImage.src = template.url.toString();
+                                      memeImage.crossOrigin = "anonymous"
                                       setMeme(memeImage);
                                   }}
                     />)
@@ -123,13 +153,14 @@ function MemeMaker() {
                 <form onSubmit={async e => {
                     e.preventDefault();
                 }}>
-                    <Button variant="primary" onClick={handleShow}>
+                    <Button variant="primary" onClick={handleShowUpload}>
                         Upload a new template
                     </Button>
 
-                    <br/>
-                    <canvas ref={canvas} width="400" height="400">
-                        {meme && draw(canvas)}
+                    <p>* After choosing/uploading a template, it won't show immediately. You should add text or click again to see it on canvas.</p>
+
+                    <canvas id="meme-canvas" ref={canvasRef} width="400" height="400">
+                        {meme && draw(canvasRef)}
                     </canvas>
                     {template && <p>{template.name}</p>}
 
@@ -148,13 +179,12 @@ function MemeMaker() {
                     <br/>
 
                     <Button onClick={clear}>Clear</Button>
-                    <Button type="submit" onClick={handleGenerate}>Generate meme</Button>
+                    <Button id="generate" type="submit" onClick={handleShowGenerate}>Generate meme</Button>
                 </form>
 
             </div>
 
-
-            <Modal show={show} onHide={handleClose}>
+            <Modal show={showUpload} onHide={handleCloseUpload}>
                 <Modal.Header closeButton>
                     <Modal.Title>Choose a way to upload</Modal.Title>
                 </Modal.Header>
@@ -165,7 +195,7 @@ function MemeMaker() {
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleClose}>
+                    <Button variant="secondary" onClick={handleCloseUpload}>
                         Close
                     </Button>
                     <Button variant="primary" onClick={handleUpload}>
@@ -173,8 +203,22 @@ function MemeMaker() {
                     </Button>
                 </Modal.Footer>
             </Modal>
-        </div>
 
+            <Modal show={showGenerate} onHide={handleCloseGenerate}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Result</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <img id="done" className="done" alt={"result-meme"} src={done}/>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" onClick={handleDownload}>
+                        Download
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+        </div>
     )
 }
 

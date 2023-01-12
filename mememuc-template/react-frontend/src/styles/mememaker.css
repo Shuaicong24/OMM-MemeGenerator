@@ -7,7 +7,6 @@
 canvas {
     width: 50%;
     display: inline;
-    margin: 5px;
 }
 
 .thumbnail {
@@ -29,26 +28,12 @@ canvas {
     display: flex;
 }
 
-.meme-area {
-    position: relative;
-}
-
-.top-caption {
-    position: absolute;
-    top: 10%;
-    left: 0;
-    width: 100%;
-    font-size: 40px;
-}
-
-.bottom-caption {
-    position: absolute;
-    top: 60%;
-    left: 0;
-    width: 100%;
-    font-size: 40px;
-}
-
 Button {
     margin: 5px;
+}
+
+.done {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }
