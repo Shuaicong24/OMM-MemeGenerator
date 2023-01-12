@@ -3,7 +3,7 @@
  * https://react-bootstrap.github.io/components/navbar/
  * */
 
-import React from "react";
+import React, {useState} from "react";
 import 'bootstrap/dist/css/bootstrap.css';
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
@@ -14,6 +14,9 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 import logo from '../logo.jpg';
 
 function NavigationBar() {
+
+    const [auth, setAuth] = useState(false);
+
     return (
         <Navbar bg="dark" variant="dark" expand="lg">
             <Container fluid>

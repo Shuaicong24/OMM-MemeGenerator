@@ -4,6 +4,12 @@
     margin: 5px;
 }
 
+canvas {
+    width: 50%;
+    display: inline;
+    margin: 5px;
+}
+
 .thumbnail {
     width: 100%;
     display: inline;

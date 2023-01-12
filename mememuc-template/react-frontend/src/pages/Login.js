@@ -6,6 +6,7 @@
 
 import React from "react";
 import "../styles/form.css";
+import {auth, setAuth} from "./Nav";
 
 class Login extends React.Component {
     constructor(props) {
@@ -19,7 +20,7 @@ class Login extends React.Component {
 
     handleSubmit(e) {
         e.preventDefault();
-        const { username, password } = this.state;
+        const {username, password} = this.state;
         console.log(username, password);
         fetch("http://localhost:3002/login-user", {
             method: "POST",
@@ -41,6 +42,9 @@ class Login extends React.Component {
                     alert("login successful");
                     window.localStorage.setItem("token", data.data);
                     window.location.href = "./userDetails";
+                    this.setState({
+                        auth: true
+                    })
                 }
             });
     }

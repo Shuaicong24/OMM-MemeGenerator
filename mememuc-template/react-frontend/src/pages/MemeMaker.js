@@ -4,15 +4,16 @@
  * https://stackoverflow.com/questions/43992427/how-to-display-a-image-selected-from-input-type-file-in-reactjs
  * https://gist.github.com/petehouston/85dd33210c0764eeae55
  * https://react-bootstrap.github.io/components/modal/
+ * https://stackoverflow.com/questions/23104582/scaling-an-image-to-fit-on-canvas
+ * https://codesandbox.io/s/loving-pare-ifwr1?file=/src/App.js:445-842
  * */
 
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import "../styles/mememaker.css"
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 
 const Meme = ({template, onClick}) => {
-
     return (
         <img
             className="row"
@@ -29,36 +30,61 @@ function MemeMaker() {
     const [topText, setTopText] = useState('');
     const [bottomText, setBottomText] = useState('');
     const [image, setImage] = useState(null);
-    const [uploaded, setUploaded] = useState(false);
     const [show, setShow] = useState(false);
+    const canvas = useRef(null);
+    const [meme, setMeme] = useState(null);
 
     const handleClose = () => {
         setShow(false);
-        setUploaded(false);
         setImage(null);
     };
     const handleShow = () => {
         setShow(true);
-        setUploaded(false);
         setImage(null);
     };
     const handleUpload = () => {
+        const memeImage = new Image();
         setShow(false);
         setTemplate(null);
-        setUploaded(true);
         setImage(image);
+        memeImage.src = image.toString();
+        setMeme(memeImage);
     };
-
 
     const handleGenerate = () => {
 
-    }
+    };
 
     useEffect(() => {
         fetch("https://api.imgflip.com/get_memes").then(x =>
             x.json().then(response => setTemplates(response.data.memes))
         );
     }, []);
+
+    function draw(canvas) {
+        canvas.width = 400;
+        canvas.height = 400;
+
+        const ctx = canvas.current.getContext("2d");
+        ctx.fillStyle = "white";
+
+        const hRatio = canvas.width / meme.width;
+        const vRatio = canvas.height / meme.height;
+        const ratio = Math.min(hRatio, vRatio);
+        const centerShift_x = (canvas.width - meme.width * ratio) / 2;
+        const centerShift_y = (canvas.height - meme.height * ratio) / 2;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(meme, 0, 0, meme.width, meme.height,
+            centerShift_x, centerShift_y, meme.width * ratio, meme.height * ratio);
+
+        ctx.font = "20px Comic Sans MS"
+        ctx.fillStyle = "green"
+        ctx.textAlign = "center"
+
+        ctx.fillText(topText, (400 / 2), centerShift_y + 25, 400)
+        ctx.fillText(bottomText, (400 / 2), 400 - centerShift_y - 25, 400)
+
+    }
 
     const onImageChange = e => {
         if (e.target.files && e.target.files[0]) {
@@ -72,9 +98,8 @@ function MemeMaker() {
     }
 
     function getRandomMeme() {
-        const index = Math.floor(Math.random()*templates.length);
+        const index = Math.floor(Math.random() * templates.length);
         const randomMeme = templates[index];
-        console.log(randomMeme);
         setTemplate(randomMeme)
     }
 
@@ -87,6 +112,9 @@ function MemeMaker() {
                                   onClick={() => {
                                       setImage(null);
                                       setTemplate(template);
+                                      const memeImage = new Image();
+                                      memeImage.src = template.url.toString();
+                                      setMeme(memeImage);
                                   }}
                     />)
                 })}
@@ -99,15 +127,11 @@ function MemeMaker() {
                         Upload a new template
                     </Button>
 
-                    <div className="meme-area">
-                        {template && <Meme template={template}/>}
-                        {template && <p>{template.name}</p>}
-                        {!template && uploaded && image && <img className="row" src={image} alt={"image"}/>}
-
-                        <div className="top-caption">{topText}</div>
-                        <div className="bottom-caption">{bottomText}</div>
-                    </div>
-
+                    <br/>
+                    <canvas ref={canvas} width="400" height="400">
+                        {meme && draw(canvas)}
+                    </canvas>
+                    {template && <p>{template.name}</p>}
 
                     <br/>
                     <input
@@ -123,9 +147,8 @@ function MemeMaker() {
                     />
                     <br/>
 
-                <Button onClick={clear}>Clear</Button>
+                    <Button onClick={clear}>Clear</Button>
                     <Button type="submit" onClick={handleGenerate}>Generate meme</Button>
-
                 </form>
 
             </div>
@@ -138,7 +161,7 @@ function MemeMaker() {
                 <Modal.Body>
                     <input type="file" onChange={onImageChange}/>
                     <div>
-                        {image && <img className="thumbnail" src={image} alt={"image"}/>}
+                        {image && <img id="thumbnail" className="thumbnail" src={image} alt={"image"}/>}
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
@@ -150,8 +173,6 @@ function MemeMaker() {
                     </Button>
                 </Modal.Footer>
             </Modal>
-
-            <canvas className="my-canvas"></canvas>
         </div>
 
     )
