@@ -5,6 +5,7 @@
 }
 
 canvas {
+    margin-top: 15px;
     width: 50%;
     display: inline;
 }
@@ -37,4 +38,8 @@ Button {
     display: inline;
     margin-left: auto;
     margin-right: auto;
+}
+
+input {
+    margin: 2px;
 }

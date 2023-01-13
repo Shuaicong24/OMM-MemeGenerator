@@ -35,6 +35,7 @@ function MemeMaker() {
 
     const [templates, setTemplates] = useState([]);
     const [template, setTemplate] = useState(null);
+    const [title, setTitle] = useState('');
     const [topText, setTopText] = useState('');
     const [bottomText, setBottomText] = useState('');
     const [image, setImage] = useState(null);
@@ -44,6 +45,8 @@ function MemeMaker() {
     const [showGenerate, setShowGenerate] = useState(false);
     const [done, setDone] = useState('');
     const [path, setPath] = useState('');
+    const [filename, setFilename] = useState('');
+    const [caption, setCaption] = useState('');
 
     const handleCloseUpload = () => {
         setShowUpload(false);
@@ -61,12 +64,17 @@ function MemeMaker() {
         memeImage.src = image.toString();
         memeImage.crossOrigin = "anonymous"
         setMeme(memeImage);
+        setCaption(filename);
+        setTitle('');
     };
 
     const handleCloseGenerate = () => {
         setShowGenerate(false);
     }
     const handleShowGenerate = () => {
+        if (!title) {
+            setTitle(caption);
+        }
         setShowGenerate(true);
         const canvas = document.getElementById('meme-canvas');
         const dataURL = canvas.toDataURL();
@@ -118,6 +126,10 @@ function MemeMaker() {
         if (e.target.files && e.target.files[0]) {
             setImage(URL.createObjectURL(e.target.files[0]));
         }
+        const fileName = e.target.files[0].name;
+        const targetName = fileName.substring(0, fileName.indexOf('.'));
+
+        setFilename(targetName);
     };
 
     function clear() {
@@ -144,6 +156,8 @@ function MemeMaker() {
                                       memeImage.src = template.url.toString();
                                       memeImage.crossOrigin = "anonymous"
                                       setMeme(memeImage);
+                                      setCaption(template.name);
+                                      setTitle('');
                                   }}
                     />)
                 })}
@@ -158,10 +172,19 @@ function MemeMaker() {
 
                     <p>* After choosing/uploading a template, it won't show immediately. You should add text or click again to see it on canvas.</p>
 
+                    Name a title
+                    <input
+                        type="text"
+                        placeholder={'name it'}
+                        value={title}
+                        onChange={e => setTitle(e.target.value)}
+                    />
+                    <br/>
                     <canvas id="meme-canvas" ref={canvasRef} width="400" height="400">
                         {meme && draw(canvasRef)}
                     </canvas>
-                    {template && <p>{template.name}</p>}
+                    <p>{caption}</p>
+
 
                     <br/>
                     <input
@@ -208,6 +231,7 @@ function MemeMaker() {
                     <Modal.Title>Result</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                    <p>{title}</p>
                     <img id="done" className="done" alt={"result-meme"} src={done}/>
                 </Modal.Body>
                 <Modal.Footer>
