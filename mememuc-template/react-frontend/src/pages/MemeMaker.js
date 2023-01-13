@@ -43,6 +43,7 @@ function MemeMaker() {
     const [meme, setMeme] = useState(null);
     const [showGenerate, setShowGenerate] = useState(false);
     const [done, setDone] = useState('');
+    const [path, setPath] = useState('');
 
     const handleCloseUpload = () => {
         setShowUpload(false);
@@ -72,16 +73,14 @@ function MemeMaker() {
         setDone(dataURL);
     };
     const handleDownload = () => {
-        const done = document.getElementById("done");
-        let imgPath = done.getAttribute('src');
-        console.log('path: ', imgPath);
+        const doneImg = document.getElementById("done");
+        let imgPath = doneImg.getAttribute('src');
         let fileName = getFileName(imgPath);
         saveAs(imgPath, fileName)
     };
 
     function getFileName(str) {
-        return str.substring(str.lastIndexOf('/')+1);
-
+        return str.substring(str.length - 20);
     }
 
     useEffect(() => {
@@ -91,28 +90,28 @@ function MemeMaker() {
     }, []);
 
     function draw(canvas) {
-        canvas.width = 400;
-        canvas.height = 400;
+        const myCanvas = document.getElementById("meme-canvas");
 
-        const ctx = canvas.current.getContext("2d");
-        ctx.fillStyle = "white";
+        // assume that at this moment there is a pic on the canvas
+        if (meme.width != 0 ) {
+            myCanvas.width = meme.width;
+            myCanvas.height = meme.height;
 
-        const hRatio = canvas.width / meme.width;
-        const vRatio = canvas.height / meme.height;
-        const ratio = Math.min(hRatio, vRatio);
-        const centerShift_x = (canvas.width - meme.width * ratio) / 2;
-        const centerShift_y = (canvas.height - meme.height * ratio) / 2;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(meme, 0, 0, meme.width, meme.height,
-            centerShift_x, centerShift_y, meme.width * ratio, meme.height * ratio);
+            const ctx = canvas.current.getContext("2d");
+            ctx.fillStyle = "white";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(meme, 0, 0);
 
-        ctx.font = "20px Comic Sans MS"
-        ctx.fillStyle = "green"
-        ctx.textAlign = "center"
+            ctx.font = "60px Comic Sans MS";
+            ctx.fillStyle = "green";
+            ctx.textAlign = "center";
 
-        ctx.fillText(topText, (400 / 2), centerShift_y + 25, 400)
-        ctx.fillText(bottomText, (400 / 2), 400 - centerShift_y - 25, 400)
-
+            ctx.fillText(topText, (myCanvas.width / 2), 100, myCanvas.width);
+            ctx.fillText(bottomText, (myCanvas.width / 2), myCanvas.height - 100, myCanvas.width);
+        } else {
+            myCanvas.width = 0;
+            myCanvas.height = 0;
+        }
     }
 
     const onImageChange = e => {

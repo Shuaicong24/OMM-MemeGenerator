@@ -33,7 +33,8 @@ Button {
 }
 
 .done {
-    display: block;
+    width: 100%;
+    display: inline;
     margin-left: auto;
     margin-right: auto;
 }
