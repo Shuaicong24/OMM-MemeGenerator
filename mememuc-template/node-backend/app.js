@@ -109,7 +109,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
-require("./models/user-model");
+require("./models/user");
 const User = mongoose.model("UserInfo");
 
 // register part
@@ -181,6 +181,9 @@ app.post("/userData", async (req, res) => {
         });
   } catch (error) {}
 });
+
+// save meme
+
 
 app.listen(3002, () => {
   console.log("Server is running at port 3002");

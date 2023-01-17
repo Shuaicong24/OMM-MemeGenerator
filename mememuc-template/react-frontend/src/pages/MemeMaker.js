@@ -12,6 +12,8 @@
  * https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image
  * Download meme:
  * https://www.youtube.com/watch?v=wsGrRrWe86A
+ * Random id:
+ * https://www.geeksforgeeks.org/generate-random-alpha-numeric-string-in-javascript/
  *
  * */
 
@@ -19,7 +21,8 @@ import React, {useEffect, useRef, useState} from "react";
 import "../styles/mememaker.css"
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import { saveAs } from 'file-saver';
+import {saveAs} from 'file-saver';
+const LINK_MEME_PREFIX = 'http://localhost:3000/m/';
 
 const Meme = ({template, onClick}) => {
     return (
@@ -47,6 +50,7 @@ function MemeMaker() {
     const [path, setPath] = useState('');
     const [filename, setFilename] = useState('');
     const [caption, setCaption] = useState('');
+    const [id, setId] = useState('');
 
     const handleCloseUpload = () => {
         setShowUpload(false);
@@ -71,15 +75,31 @@ function MemeMaker() {
     const handleCloseGenerate = () => {
         setShowGenerate(false);
     }
-    const handleShowGenerate = () => {
-        if (!title) {
-            setTitle(caption);
+
+    function uploadId(id) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                setId(id);
+                resolve(id);
+            }, 100);
+        })
+    }
+
+    async function handleShowGenerate() {
+        const myCanvas = document.getElementById("meme-canvas");
+
+        if (meme != null && myCanvas.width != 0) {
+            if (!title) {
+                setTitle(caption);
+            }
+            setShowGenerate(true);
+            const canvas = document.getElementById('meme-canvas');
+            const dataURL = canvas.toDataURL();
+            setDone(dataURL);
+            const id = await uploadId(Math.random().toString(36).slice(2));
         }
-        setShowGenerate(true);
-        const canvas = document.getElementById('meme-canvas');
-        const dataURL = canvas.toDataURL();
-        setDone(dataURL);
-    };
+    }
+
     const handleDownload = () => {
         const doneImg = document.getElementById("done");
         let imgPath = doneImg.getAttribute('src');
@@ -180,7 +200,7 @@ function MemeMaker() {
                         onChange={e => setTitle(e.target.value)}
                     />
                     <br/>
-                    <canvas id="meme-canvas" ref={canvasRef} width="400" height="400">
+                    <canvas id="meme-canvas" ref={canvasRef} width="0" height="0">
                         {meme && draw(canvasRef)}
                     </canvas>
                     <p>{caption}</p>
@@ -233,6 +253,7 @@ function MemeMaker() {
                 <Modal.Body>
                     <p>{title}</p>
                     <img id="done" className="done" alt={"result-meme"} src={done}/>
+                    <p style={{'marginTop': '4px'}}>Image Link: <a href={LINK_MEME_PREFIX+id}>{LINK_MEME_PREFIX}{id}</a></p>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" onClick={handleDownload}>
