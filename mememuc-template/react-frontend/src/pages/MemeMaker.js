@@ -22,6 +22,7 @@ import "../styles/mememaker.css"
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import {saveAs} from 'file-saver';
+
 const LINK_MEME_PREFIX = 'http://localhost:3000/m/';
 
 const Meme = ({template, onClick}) => {
@@ -47,7 +48,7 @@ function MemeMaker() {
     const [meme, setMeme] = useState(null);
     const [showGenerate, setShowGenerate] = useState(false);
     const [done, setDone] = useState('');
-    const [path, setPath] = useState('');
+    const [result, setResult] = useState(null);
     const [filename, setFilename] = useState('');
     const [caption, setCaption] = useState('');
     const [id, setId] = useState('');
@@ -85,19 +86,78 @@ function MemeMaker() {
         })
     }
 
-    async function handleShowGenerate() {
+    const form = document.getElementById("generate-form");
+
+    function submitForm() {
+        form.submit();
+    }
+
+    const handleShowGenerate = () => {
+        setTimeout("submitForm()", 2000);
+
         const myCanvas = document.getElementById("meme-canvas");
+        const resultImg = new Image();
+        console.log(meme)
+        const formData = new FormData();
 
         if (meme != null && myCanvas.width != 0) {
             if (!title) {
                 setTitle(caption);
             }
+
             setShowGenerate(true);
             const canvas = document.getElementById('meme-canvas');
             const dataURL = canvas.toDataURL();
             setDone(dataURL);
-            const id = await uploadId(Math.random().toString(36).slice(2));
+
+            resultImg.src = dataURL;
+            setResult(resultImg);
+            if (done) {
+                console.log("dasdas")
+            } else console.log("ADAW")
+            console.log("fds:", typeof done);
+            console.log(typeof result);
+            const generatedImage = () => {
+                setImage({
+                    uri: done,
+                    name: "image_name",
+                    type: 'image/png', // if you can get image type from cropping replace here
+                });
+            }
+
+            formData.append('file', generatedImage);
+            formData.append('Content-Type', 'image/png');
+
+            alert(typeof formData + ":" + formData);
+
+
+            const id = uploadId(Math.random().toString(36).slice(2));
+
+            const url = LINK_MEME_PREFIX + id;
+            const time = new Date().getTime();
+            const timeString = time.toString();
+            const author = '';
+            console.log(title, url, done, timeString, author);
+
+            const {mTitle, mUrl, mDone, mDate, mAuthor} = {title, url, done, timeString, author}; // undefined
+            console.log(mTitle, mUrl, mDone, mDate, mAuthor);
+
+            fetch("http://localhost:3002/upload", {
+                method: "POST",
+                crossDomain: true,
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                },
+                data: formData,
+            }).then(res => res.json())
+                .then(data => console.log(data, "generateMeme"))
+        } else {
+            console.log("QAXCE")
         }
+
+
     }
 
     const handleDownload = () => {
@@ -121,7 +181,7 @@ function MemeMaker() {
         const myCanvas = document.getElementById("meme-canvas");
 
         // assume that at this moment there is a pic on the canvas
-        if (meme.width != 0 ) {
+        if (meme.width != 0) {
             myCanvas.width = meme.width;
             myCanvas.height = meme.height;
 
@@ -163,6 +223,7 @@ function MemeMaker() {
         setTemplate(randomMeme)
     }
 
+
     return (
         <div>
             <div className="template-area">
@@ -183,14 +244,21 @@ function MemeMaker() {
                 })}
             </div>
             <div>
-                <form onSubmit={async e => {
-                    e.preventDefault();
-                }}>
+                <form
+                    id="generate-form"
+                    action="http://localhost:3002/upload"
+                    method="POST"
+                    onSubmit={async e => {
+                        // Blocking page bounces
+                        e.preventDefault();
+                    }}
+                >
                     <Button variant="primary" onClick={handleShowUpload}>
                         Upload a new template
                     </Button>
 
-                    <p>* After choosing/uploading a template, it won't show immediately. You should add text or click again to see it on canvas.</p>
+                    <p>* After choosing/uploading a template, it won't show immediately. You should add text or click
+                        again to see it on canvas.</p>
 
                     Name a title
                     <input
@@ -225,7 +293,7 @@ function MemeMaker() {
                 </form>
 
             </div>
-
+            <script></script>
             <Modal show={showUpload} onHide={handleCloseUpload}>
                 <Modal.Header closeButton>
                     <Modal.Title>Choose a way to upload</Modal.Title>
@@ -253,7 +321,8 @@ function MemeMaker() {
                 <Modal.Body>
                     <p>{title}</p>
                     <img id="done" className="done" alt={"result-meme"} src={done}/>
-                    <p style={{'marginTop': '4px'}}>Image Link: <a href={LINK_MEME_PREFIX+id}>{LINK_MEME_PREFIX}{id}</a></p>
+                    <p style={{'marginTop': '4px'}}>Image Link: <a
+                        href={LINK_MEME_PREFIX + id}>{LINK_MEME_PREFIX}{id}</a></p>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" onClick={handleDownload}>
@@ -261,6 +330,61 @@ function MemeMaker() {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+            <div className="container">
+                <div className="row">
+                    <div className="col-sm-8 mt-3">
+                        <h4>Node.js upload images - bezkoder.com</h4>
+
+                        <form
+                            className="mt-4"
+                            action="http://localhost:3002/upload"
+                            method="POST"
+                            encType="multipart/form-data"
+                        >
+                            <div className="form-group">
+                                <input
+                                    type="file"
+                                    name="file"
+                                    multiple
+                                    id="input-files"
+                                    className="form-control-file border"
+                                />
+                            </div>
+                            <button type="submit" className="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                </div>
+                <hr/>
+                <div className="row">
+                    <div className="col-sm-12">
+                        <div className="preview-images"></div>
+                    </div>
+                </div>
+            </div>
+            {/*<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>*/}
+            {/*<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>*/}
+            {/*<script>*/}
+            {/*    $(document).ready(function() {*/}
+            {/*    var imagesPreview = function(input, placeToInsertImagePreview) {*/}
+            {/*    if (input.files) {*/}
+            {/*    let filesAmount = input.files.length;*/}
+            {/*    for (i = 0; i < filesAmount; i++) {*/}
+            {/*    let reader = new FileReader();*/}
+            {/*    reader.onload = function(event) {*/}
+            {/*    $($.parseHTML("<img>"))*/}
+            {/*    .attr("src", event.target.result)*/}
+            {/*    .appendTo(placeToInsertImagePreview);*/}
+            {/*};*/}
+            {/*    reader.readAsDataURL(input.files[i]);*/}
+            {/*}*/}
+            {/*}*/}
+            {/*};*/}
+            {/*    $("#input-files").on("change", function() {*/}
+            {/*    imagesPreview(this, "div.preview-images");*/}
+            {/*});*/}
+            {/*});*/}
+            {/*</script>*/}
 
         </div>
     )

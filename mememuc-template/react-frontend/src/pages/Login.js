@@ -6,7 +6,6 @@
 
 import React from "react";
 import "../styles/form.css";
-import {auth, setAuth} from "./Nav";
 
 class Login extends React.Component {
     constructor(props) {
@@ -38,13 +37,14 @@ class Login extends React.Component {
             .then((res) => res.json())
             .then((data) => {
                 console.log(data, "userLogin");
+                localStorage.setItem("logStatus", "notLogged");
+
                 if (data.status == "ok") {
-                    alert("login successful");
+                    alert("Login successful");
+                    window.localStorage.setItem("logStatus", "logged");
                     window.localStorage.setItem("token", data.data);
                     window.location.href = "./userDetails";
-                    this.setState({
-                        auth: true
-                    })
+
                 }
             });
     }
@@ -83,6 +83,7 @@ class Login extends React.Component {
                 <p className="forgot-password text-right">
                     New here <a href="/sign-up">sign up!</a>
                 </p>
+
             </form>
         );
     }
