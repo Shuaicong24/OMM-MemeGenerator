@@ -14,7 +14,13 @@
  * https://www.youtube.com/watch?v=wsGrRrWe86A
  * Random id:
  * https://www.geeksforgeeks.org/generate-random-alpha-numeric-string-in-javascript/
- *
+ * Radio button:
+ * help from Xueru Zheng, Group 070
+ * https://www.javascripttutorial.net/javascript-dom/javascript-radio-button/
+ * Upload meme(info) to MongoDB (especially image part):
+ * help from Xueru Zheng, Group 070
+ * https://stackoverflow.com/questions/12168909/blob-from-dataurl
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now
  * */
 
 import React, {useEffect, useRef, useState} from "react";
@@ -52,6 +58,7 @@ function MemeMaker() {
     const [filename, setFilename] = useState('');
     const [caption, setCaption] = useState('');
     const [id, setId] = useState('');
+    const [permission, setPermission] = useState('public');
 
     const handleCloseUpload = () => {
         setShowUpload(false);
@@ -86,78 +93,26 @@ function MemeMaker() {
         })
     }
 
-    const form = document.getElementById("generate-form");
-
-    function submitForm() {
-        form.submit();
-    }
-
     const handleShowGenerate = () => {
-        setTimeout("submitForm()", 2000);
+        setPermission('public');
 
-        const myCanvas = document.getElementById("meme-canvas");
+        const canvas = canvasRef.current;
         const resultImg = new Image();
-        console.log(meme)
-        const formData = new FormData();
 
-        if (meme != null && myCanvas.width != 0) {
+        if (meme != null && canvas.width != 0) {
             if (!title) {
                 setTitle(caption);
             }
 
             setShowGenerate(true);
-            const canvas = document.getElementById('meme-canvas');
             const dataURL = canvas.toDataURL();
             setDone(dataURL);
 
             resultImg.src = dataURL;
             setResult(resultImg);
-            if (done) {
-                console.log("dasdas")
-            } else console.log("ADAW")
-            console.log("fds:", typeof done);
-            console.log(typeof result);
-            const generatedImage = () => {
-                setImage({
-                    uri: done,
-                    name: "image_name",
-                    type: 'image/png', // if you can get image type from cropping replace here
-                });
-            }
 
-            formData.append('file', generatedImage);
-            formData.append('Content-Type', 'image/png');
-
-            alert(typeof formData + ":" + formData);
-
-
-            const id = uploadId(Math.random().toString(36).slice(2));
-
-            const url = LINK_MEME_PREFIX + id;
-            const time = new Date().getTime();
-            const timeString = time.toString();
-            const author = '';
-            console.log(title, url, done, timeString, author);
-
-            const {mTitle, mUrl, mDone, mDate, mAuthor} = {title, url, done, timeString, author}; // undefined
-            console.log(mTitle, mUrl, mDone, mDate, mAuthor);
-
-            fetch("http://localhost:3002/upload", {
-                method: "POST",
-                crossDomain: true,
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                },
-                data: formData,
-            }).then(res => res.json())
-                .then(data => console.log(data, "generateMeme"))
-        } else {
-            console.log("QAXCE")
+            setId(Math.random().toString(36).slice(2));
         }
-
-
     }
 
     const handleDownload = () => {
@@ -166,6 +121,51 @@ function MemeMaker() {
         let fileName = getFileName(imgPath);
         saveAs(imgPath, fileName)
     };
+
+    const handlePermission = (e) => {
+        setPermission(e.target.value);
+    }
+
+    const handlePrivacy = () => {
+        const imgLink = document.getElementById("imgLink");
+
+        if (permission == "unlisted" || permission == "public") {
+            imgLink.style.visibility = 'visible';
+        } else {
+            imgLink.style.visibility = 'hidden';
+        }
+        uploadMeme(permission);
+
+    }
+
+    function uploadMeme(permission) {
+        // upload meme to db
+        const formData = new FormData();
+
+        const dataURL = canvasRef.current.toDataURL();
+        const url = LINK_MEME_PREFIX + id;
+
+        formData.append("title", title);
+        formData.append("url", url);
+        formData.append("file", convertDataToBlob(dataURL));
+        formData.append("author", '');
+        formData.append("permission", permission);
+
+        const response = fetch(" http://localhost:3002/memes/upload-meme", {
+            method: "POST",
+            body: formData,
+        });
+        console.log(response);
+    }
+
+    function convertDataToBlob(dataURL) {
+        const byteString = atob(dataURL.split(",")[1]);
+        const array = [];
+        for (let i = 0; i < byteString.length; i++) {
+            array.push(byteString.charCodeAt(i));
+        }
+        return new Blob([new Uint8Array(array)], {type: "image/png"});
+    }
 
     function getFileName(str) {
         return str.substring(str.length - 20);
@@ -178,7 +178,7 @@ function MemeMaker() {
     }, []);
 
     function draw(canvas) {
-        const myCanvas = document.getElementById("meme-canvas");
+        const myCanvas = canvasRef.current;
 
         // assume that at this moment there is a pic on the canvas
         if (meme.width != 0) {
@@ -321,7 +321,28 @@ function MemeMaker() {
                 <Modal.Body>
                     <p>{title}</p>
                     <img id="done" className="done" alt={"result-meme"} src={done}/>
-                    <p style={{'marginTop': '4px'}}>Image Link: <a
+                    <div>
+                        <p>Set meme's permission</p>
+                        <div>
+                            <input type="radio" name="privacy" value="public" id="public"
+                                   checked={permission == "public"} onChange={handlePermission}/>
+                            <label htmlFor="public">Public <span style={{'fontSize': '12px'}}>(Provide single view link, show on Overview)</span></label>
+                        </div>
+                        <div>
+                            <input type="radio" name="privacy" value="unlisted" id="unlisted"
+                                   checked={permission == "unlisted"} onChange={handlePermission}/>
+                            <label htmlFor="unlisted">Unlisted <span style={{'fontSize': '12px'}}>(Provide single view link, doesn't show on Overview)</span></label>
+                        </div>
+                        <div>
+                            <input type="radio" name="privacy" value="private" id="private"
+                                   checked={permission == "private"} onChange={handlePermission}/>
+                            <label htmlFor="private">Private <span style={{'fontSize': '12px'}}>(Only for download, and visible to the creator after login)</span></label>
+                        </div>
+                        <Button id="confirm" variant="primary" onClick={handlePrivacy}>
+                            Confirm
+                        </Button>
+                    </div>
+                    <p id="imgLink" style={{'marginTop': '4px', 'visibility': 'hidden'}}>Meme Link: <a
                         href={LINK_MEME_PREFIX + id}>{LINK_MEME_PREFIX}{id}</a></p>
                 </Modal.Body>
                 <Modal.Footer>
@@ -330,62 +351,6 @@ function MemeMaker() {
                     </Button>
                 </Modal.Footer>
             </Modal>
-
-            <div className="container">
-                <div className="row">
-                    <div className="col-sm-8 mt-3">
-                        <h4>Node.js upload images - bezkoder.com</h4>
-
-                        <form
-                            className="mt-4"
-                            action="http://localhost:3002/upload"
-                            method="POST"
-                            encType="multipart/form-data"
-                        >
-                            <div className="form-group">
-                                <input
-                                    type="file"
-                                    name="file"
-                                    multiple
-                                    id="input-files"
-                                    className="form-control-file border"
-                                />
-                            </div>
-                            <button type="submit" className="btn btn-primary">Submit</button>
-                        </form>
-                    </div>
-                </div>
-                <hr/>
-                <div className="row">
-                    <div className="col-sm-12">
-                        <div className="preview-images"></div>
-                    </div>
-                </div>
-            </div>
-            {/*<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>*/}
-            {/*<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>*/}
-            {/*<script>*/}
-            {/*    $(document).ready(function() {*/}
-            {/*    var imagesPreview = function(input, placeToInsertImagePreview) {*/}
-            {/*    if (input.files) {*/}
-            {/*    let filesAmount = input.files.length;*/}
-            {/*    for (i = 0; i < filesAmount; i++) {*/}
-            {/*    let reader = new FileReader();*/}
-            {/*    reader.onload = function(event) {*/}
-            {/*    $($.parseHTML("<img>"))*/}
-            {/*    .attr("src", event.target.result)*/}
-            {/*    .appendTo(placeToInsertImagePreview);*/}
-            {/*};*/}
-            {/*    reader.readAsDataURL(input.files[i]);*/}
-            {/*}*/}
-            {/*}*/}
-            {/*};*/}
-            {/*    $("#input-files").on("change", function() {*/}
-            {/*    imagesPreview(this, "div.preview-images");*/}
-            {/*});*/}
-            {/*});*/}
-            {/*</script>*/}
-
         </div>
     )
 }
