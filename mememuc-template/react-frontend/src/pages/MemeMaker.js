@@ -151,11 +151,13 @@ function MemeMaker() {
         formData.append("author", '');
         formData.append("permission", permission);
 
-        const response = fetch(" http://localhost:3002/memes/upload-meme", {
+        fetch(" http://localhost:3002/memes/upload-meme", {
             method: "POST",
             body: formData,
-        });
-        console.log(response);
+        }).then((res) => res.json())
+            .then((data) => {
+                console.log(data, "uploadMeme");
+            });
     }
 
     function convertDataToBlob(dataURL) {

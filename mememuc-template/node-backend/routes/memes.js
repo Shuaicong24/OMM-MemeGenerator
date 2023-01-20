@@ -43,11 +43,13 @@ router.post("/upload-meme", upload.single("file"), async (req, res) => {
         date: Date.now(),
         permission: req.body.permission
     });
-    meme.save().then(item => {
-        res.send("item saved to database");
-    }).catch(err => {
-        res.status(400).send("unable to save to database");
-    });
+
+    try {
+        await meme.save();
+        res.send({status: "ok"});
+    } catch (error) {
+        res.send({status: "error"});
+    }
 });
 
 module.exports = router;

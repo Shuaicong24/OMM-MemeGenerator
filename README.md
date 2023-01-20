@@ -7,6 +7,7 @@ react-backend:
 2. bcryptjs - incorporate a salt to encrypt password
 3. jsonwebtoken - secure communication
 4. node-notifier - show notifications
+5. multer - process form which is multipart (upload files)
 
 react-frontend:
 1. react-router-dom - navigation
