@@ -84,18 +84,7 @@ function MemeMaker() {
         setShowGenerate(false);
     }
 
-    function uploadId(id) {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                setId(id);
-                resolve(id);
-            }, 100);
-        })
-    }
-
     const handleShowGenerate = () => {
-        setPermission('public');
-
         const canvas = canvasRef.current;
         const resultImg = new Image();
 
@@ -113,6 +102,7 @@ function MemeMaker() {
 
             setId(Math.random().toString(36).slice(2));
         }
+        uploadMeme(permission);
     }
 
     const handleDownload = () => {
@@ -124,18 +114,6 @@ function MemeMaker() {
 
     const handlePermission = (e) => {
         setPermission(e.target.value);
-    }
-
-    const handlePrivacy = () => {
-        const imgLink = document.getElementById("imgLink");
-
-        if (permission == "unlisted" || permission == "public") {
-            imgLink.style.visibility = 'visible';
-        } else {
-            imgLink.style.visibility = 'hidden';
-        }
-        uploadMeme(permission);
-
     }
 
     function uploadMeme(permission) {
@@ -291,6 +269,24 @@ function MemeMaker() {
                     <br/>
 
                     <Button onClick={clear}>Clear</Button>
+                    <div>
+                        <p>Set meme's permission</p>
+                        <div>
+                            <input type="radio" name="privacy" value="public" id="public"
+                                   checked={permission == "public"} onChange={handlePermission}/>
+                            <label htmlFor="public">Public <span style={{'fontSize': '12px'}}>(Provide single view link, show on Overview)</span></label>
+                        </div>
+                        <div>
+                            <input type="radio" name="privacy" value="unlisted" id="unlisted"
+                                   checked={permission == "unlisted"} onChange={handlePermission}/>
+                            <label htmlFor="unlisted">Unlisted <span style={{'fontSize': '12px'}}>(Provide single view link, doesn't show on Overview)</span></label>
+                        </div>
+                        <div>
+                            <input type="radio" name="privacy" value="private" id="private"
+                                   checked={permission == "private"} onChange={handlePermission}/>
+                            <label htmlFor="private">Private <span style={{'fontSize': '12px'}}>(Only for download, and visible to the creator after login)</span></label>
+                        </div>
+                    </div>
                     <Button id="generate" type="submit" onClick={handleShowGenerate}>Generate meme</Button>
                 </form>
 
@@ -323,29 +319,10 @@ function MemeMaker() {
                 <Modal.Body>
                     <p>{title}</p>
                     <img id="done" className="done" alt={"result-meme"} src={done}/>
-                    <div>
-                        <p>Set meme's permission</p>
-                        <div>
-                            <input type="radio" name="privacy" value="public" id="public"
-                                   checked={permission == "public"} onChange={handlePermission}/>
-                            <label htmlFor="public">Public <span style={{'fontSize': '12px'}}>(Provide single view link, show on Overview)</span></label>
-                        </div>
-                        <div>
-                            <input type="radio" name="privacy" value="unlisted" id="unlisted"
-                                   checked={permission == "unlisted"} onChange={handlePermission}/>
-                            <label htmlFor="unlisted">Unlisted <span style={{'fontSize': '12px'}}>(Provide single view link, doesn't show on Overview)</span></label>
-                        </div>
-                        <div>
-                            <input type="radio" name="privacy" value="private" id="private"
-                                   checked={permission == "private"} onChange={handlePermission}/>
-                            <label htmlFor="private">Private <span style={{'fontSize': '12px'}}>(Only for download, and visible to the creator after login)</span></label>
-                        </div>
-                        <Button id="confirm" variant="primary" onClick={handlePrivacy}>
-                            Confirm
-                        </Button>
-                    </div>
-                    <p id="imgLink" style={{'marginTop': '4px', 'visibility': 'hidden'}}>Meme Link: <a
-                        href={LINK_MEME_PREFIX + id}>{LINK_MEME_PREFIX}{id}</a></p>
+                    {(permission == "public" || permission === "unlisted") && <p style={{'marginTop': '4px'}}>Meme Link: <a
+                        href={LINK_MEME_PREFIX + id}>{LINK_MEME_PREFIX}{id}</a></p>}
+                    {permission == "private" && <p style={{'marginTop': '4px'}}>Now you can only download it!</p>}
+
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="primary" onClick={handleDownload}>
