@@ -26,6 +26,7 @@ class NavigationBar extends React.Component {
 
     handleSignOut() {
         window.localStorage.setItem("logStatus", "notLogged");
+        window.localStorage.setItem("loggedUsername", "");
         alert("You are now logged out");
     }
 
@@ -72,9 +73,11 @@ class NavigationBar extends React.Component {
                                 }
                                 {
                                     window.localStorage.getItem("logStatus") == "logged" &&
-                                    <Nav.Link id="sign-out" href="/" onClick={this.handleSignOut}>Log Out</Nav.Link>
+                                    <NavDropdown title={localStorage.getItem("loggedUsername")}>
+                                        <NavDropdown.Item href="/" onClick={this.handleSignOut}>Log
+                                            Out</NavDropdown.Item>
+                                    </NavDropdown>
                                 }
-
                             </Nav>
                         </Nav>
 

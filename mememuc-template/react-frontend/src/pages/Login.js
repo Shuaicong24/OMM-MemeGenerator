@@ -21,7 +21,7 @@ class Login extends React.Component {
         e.preventDefault();
         const {username, password} = this.state;
         console.log(username, password);
-        fetch("http://localhost:3002/login-user", {
+        fetch("http://localhost:3002/users/login-user", {
             method: "POST",
             crossDomain: true,
             headers: {
@@ -42,6 +42,7 @@ class Login extends React.Component {
                 if (data.status == "ok") {
                     alert("Login successful");
                     window.localStorage.setItem("logStatus", "logged");
+                    window.localStorage.setItem("loggedUsername", username);
                     window.localStorage.setItem("token", data.data);
                     window.location.href = "./userDetails";
 

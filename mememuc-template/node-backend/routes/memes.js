@@ -3,7 +3,6 @@
  * help from Xueru Zheng, Group 070
  * https://www.bezkoder.com/node-js-upload-store-images-mongodb/
  * https://stackoverflow.com/questions/54979632/get-formdata-values-on-backend-side
- * https://www.jenniferbland.com/saving-data-to-mongodb-database-from-node-js-application-tutorial/
  * */
 
 var express = require("express");
@@ -23,7 +22,7 @@ const storage = multer.diskStorage({
 const upload = multer({storage: storage});
 const memeModel = require("../models/meme");
 
-router.get("/get-memes", async function (req, res, next) {
+router.get("/get-public-memes", async function (req, res, next) {
     try {
         const memes = await memeModel.find({});
         res.status(200).send(memes);
