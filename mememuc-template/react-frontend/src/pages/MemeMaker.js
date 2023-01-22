@@ -54,7 +54,6 @@ function MemeMaker() {
     const [meme, setMeme] = useState(null);
     const [showGenerate, setShowGenerate] = useState(false);
     const [done, setDone] = useState('');
-    const [result, setResult] = useState(null);
     const [filename, setFilename] = useState('');
     const [caption, setCaption] = useState('');
     const [id, setId] = useState('');
@@ -86,7 +85,6 @@ function MemeMaker() {
 
     const handleShowGenerate = () => {
         const canvas = canvasRef.current;
-        const resultImg = new Image();
 
         if (meme != null && canvas.width != 0) {
             if (!title) {
@@ -96,11 +94,6 @@ function MemeMaker() {
             setShowGenerate(true);
             const dataURL = canvas.toDataURL();
             setDone(dataURL);
-
-            resultImg.src = dataURL;
-            setResult(resultImg);
-
-            setId(Math.random().toString(36).slice(2));
         }
         uploadMeme(permission);
     }
@@ -121,9 +114,14 @@ function MemeMaker() {
         const formData = new FormData();
 
         const dataURL = canvasRef.current.toDataURL();
-        const url = LINK_MEME_PREFIX + id;
+        const url = LINK_MEME_PREFIX + Date.now();
+        setId(url);
+        if (title) {
+            formData.append("title", title);
+        } else {
+            formData.append("title", caption);
+        }
 
-        formData.append("title", title);
         formData.append("url", url);
         formData.append("file", convertDataToBlob(dataURL));
         formData.append("author", '');
@@ -320,7 +318,7 @@ function MemeMaker() {
                     <p>{title}</p>
                     <img id="done" className="done" alt={"result-meme"} src={done}/>
                     {(permission == "public" || permission === "unlisted") && <p style={{'marginTop': '4px'}}>Meme Link: <a
-                        href={LINK_MEME_PREFIX + id}>{LINK_MEME_PREFIX}{id}</a></p>}
+                        href={id}>{id}</a></p>}
                     {permission == "private" && <p style={{'marginTop': '4px'}}>Now you can only download it!</p>}
 
                 </Modal.Body>
