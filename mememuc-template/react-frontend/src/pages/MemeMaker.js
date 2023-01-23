@@ -21,6 +21,8 @@
  * help from Xueru Zheng, Group 070
  * https://stackoverflow.com/questions/12168909/blob-from-dataurl
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now
+ * Redirect to dynamic URLs (Single View URL):
+ * https://medium.com/@s.alexis/using-react-router-useparams-to-fetch-data-dynamically-13288e24ed1
  * */
 
 import React, {useEffect, useRef, useState} from "react";
@@ -28,6 +30,7 @@ import "../styles/mememaker.css"
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import {saveAs} from 'file-saver';
+import {Link} from 'react-router-dom';
 
 const LINK_MEME_PREFIX = 'http://localhost:3000/m/';
 
@@ -114,8 +117,9 @@ function MemeMaker() {
         const formData = new FormData();
 
         const dataURL = canvasRef.current.toDataURL();
-        const url = LINK_MEME_PREFIX + Date.now();
-        setId(url);
+        const date = Date.now();
+        const url = LINK_MEME_PREFIX + date;
+        setId(date.toString());
         if (title) {
             formData.append("title", title);
         } else {
@@ -222,11 +226,7 @@ function MemeMaker() {
                 })}
             </div>
             <div>
-                <form
-                    id="generate-form"
-                    action="http://localhost:3002/upload"
-                    method="POST"
-                    onSubmit={async e => {
+                <form onSubmit={async e => {
                         // Blocking page bounces
                         e.preventDefault();
                     }}
@@ -317,8 +317,8 @@ function MemeMaker() {
                 <Modal.Body>
                     <p>{title}</p>
                     <img id="done" className="done" alt={"result-meme"} src={done}/>
-                    {(permission == "public" || permission === "unlisted") && <p style={{'marginTop': '4px'}}>Meme Link: <a
-                        href={id}>{id}</a></p>}
+                    {(permission == "public" || permission === "unlisted") &&
+                        <p style={{'marginTop': '4px'}}>Meme Link: <Link to={ `/m/${id}`}>{LINK_MEME_PREFIX}{id}</Link></p>}
                     {permission == "private" && <p style={{'marginTop': '4px'}}>Now you can only download it!</p>}
 
                 </Modal.Body>
