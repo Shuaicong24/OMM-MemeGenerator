@@ -323,6 +323,10 @@ function MemeMaker() {
 
                 </Modal.Body>
                 <Modal.Footer>
+                    {permission == "public" &&
+                        <Button variant="primary" href="/">
+                            To Overview
+                        </Button>}
                     <Button variant="primary" onClick={handleDownload}>
                         Download
                     </Button>

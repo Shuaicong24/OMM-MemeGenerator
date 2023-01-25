@@ -22,18 +22,6 @@ const storage = multer.diskStorage({
 const upload = multer({storage: storage});
 const memeModel = require("../models/meme");
 
-router.get("/get-memes", async function (req, res, next) {
-    const data = req.body;
-    console.log(data);
-
-    try {
-       // await memeModel.find({});
-        res.send({status: "ok"});
-    } catch (error) {
-        res.send({status: "error"});
-    }
-});
-
 router.post("/upload-meme", upload.single("file"), async (req, res) => {
     console.log(req.file);
     console.log('form data: ', req.body);
@@ -41,7 +29,7 @@ router.post("/upload-meme", upload.single("file"), async (req, res) => {
     const meme = new memeModel({
         title: req.body.title,
         url: req.body.url,
-        img: `http://localhost:3002/meme/${req.file.filename}`,
+        img: `http://localhost:3002/memes/${req.file.filename}`,
         date: Date.now(),
         permission: req.body.permission
     });
@@ -54,14 +42,16 @@ router.post("/upload-meme", upload.single("file"), async (req, res) => {
     }
 });
 
-router.get("/get-single-meme", async function (req, res, next) {
-    console.log(typeof req.body);
-    try {
-        const memes = await memeModel.find({});
-        res.status(200).send(memes);
-    } catch (error) {
-        res.status(500).send(error);
-    }
+router.get("/get-memes", async function (req, res, next) {
+    console.log('Get request for all memes');
+    memeModel.find({})
+        .then((data) => {
+            console.log('Memes: ', data);
+            res.send(data);
+        })
+        .catch((error) => {
+            res.status(500).send(error);
+        });
 });
 
 module.exports = router;
