@@ -8,45 +8,26 @@
  * */
 
 import React, {useState, useEffect} from "react";
-import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
-import Form from 'react-bootstrap/Form';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import "../styles/overview.css";
-import Dropdown from 'react-bootstrap/Dropdown';
-
-const Meme = ({meme, onClick}) => {
-    return (
-        <img
-            className="row"
-            src={meme.img}
-            alt={meme.title}
-            onClick={onClick}/>
-    );
-}
 
 function Overview() {
     const [data, setData] = useState([]);
-    const [url, setUrl] = useState('');
 
-    useEffect( () => {
+    useEffect(() => {
         fetch(" http://localhost:3002/memes/get-memes")
             .then((res) => res.json())
             .then((data) => {
                 setData(data);
                 console.log(data, "getMeme");
             });
-    },[])
+    }, [])
 
-    const handleDetails = () => {
-
-    }
     return (
-
-    <div>
-
+        <div>
             <Navbar className="top">
                 <Container>
                     <Nav className="me-auto">
@@ -62,27 +43,20 @@ function Overview() {
                 </Container>
             </Navbar>
 
-        {data && data.map((meme) =>
-            meme.permission == "public" &&
-            <div id="singlepost" className="parent-div" key={meme.id}>
-                <a style={{"all": "unset"}} href={meme.url}>
-
-                <div className="media-left" >
-                     <img className="img-overview" src={meme.img} alt="No image here"/>
-                    <div className="media-body">
-                        <h5>{meme.title}</h5>
-                    </div>
-
+            {data && data.map((meme) =>
+                meme.permission == "public" &&
+                <div id="singlepost" className="parent-div" key={meme.id}>
+                    <a style={{"all": "unset"}} href={meme.url}>
+                        <div className="media-left">
+                            <img className="img-overview" src={meme.img} alt="No image here"/>
+                            <div className="media-body">
+                                <h5>{meme.title}</h5>
+                            </div>
+                        </div>
+                    </a>
                 </div>
-
-                </a>
-            </div>
-
-        )}
-
-    </div>
-
-
+            )}
+        </div>
     );
 }
 

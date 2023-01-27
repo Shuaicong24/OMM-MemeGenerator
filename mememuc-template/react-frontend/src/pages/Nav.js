@@ -48,9 +48,9 @@ class NavigationBar extends React.Component {
                             navbarScroll
                         >
                             <NavDropdown title="Create" id="navbarScrollingDropdown">
-                                <NavDropdown.Item href="mememaker">Make a Meme</NavDropdown.Item>
-                                <NavDropdown.Item href="gifmaker">Make a Gif</NavDropdown.Item>
-                                <NavDropdown.Item href="videomaker">Make a Video</NavDropdown.Item>
+                                <NavDropdown.Item href="/mememaker">Make a Meme</NavDropdown.Item>
+                                <NavDropdown.Item href="/gifmaker">Make a Gif</NavDropdown.Item>
+                                <NavDropdown.Item href="/videomaker">Make a Video</NavDropdown.Item>
                             </NavDropdown>
 
 
