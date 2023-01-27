@@ -199,15 +199,8 @@ function MemeMaker() {
         setBottomText('');
     }
 
-    function getRandomMeme() {
-        const index = Math.floor(Math.random() * templates.length);
-        const randomMeme = templates[index];
-        setTemplate(randomMeme)
-    }
-
     function handleLink() {
-        const memeInfo = [id, permission];
-        window.localStorage.setItem("firstMeme", memeInfo.toString());
+        window.localStorage.setItem("memeFrom", "MemeMaker");
     }
 
     return (
@@ -323,7 +316,7 @@ function MemeMaker() {
                     <img id="done" className="done" alt={"result-meme"} src={done}/>
                     {(permission == "public" || permission === "unlisted") &&
                         <p style={{'marginTop': '4px'}}>Meme Link: <Link to={`/m/${id}`}
-                                                                         onClick={handleLink}>{LINK_MEME_PREFIX}{id}</Link>
+                                                                         onClick={handleLink()}>{LINK_MEME_PREFIX}{id}</Link>
                         </p>}
                     {permission == "private" && <p style={{'marginTop': '4px'}}>Now you can only download it!</p>}
 

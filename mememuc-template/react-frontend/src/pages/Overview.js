@@ -26,16 +26,14 @@ function Overview() {
             });
     }, [])
 
-    const handleMeme = (meme) => {
-        const id = meme.url.substring(meme.url.lastIndexOf("/") + 1);
-        const memeInfo = [id, meme.permission];
-        window.localStorage.setItem("firstMeme", memeInfo.toString());
+    const handleMeme = () => {
+        window.localStorage.setItem("memeFrom", "Overview");
     }
 
     const Meme = ({meme}) => {
         return (
             <div id="singlepost" className="parent-div" key={meme.toString()}>
-                <a style={{"all": "unset"}} href={meme.url} onClick={handleMeme(meme)}>
+                <a style={{"all": "unset"}} href={meme.url} onClick={handleMeme}>
                     <div className="media-left">
                         <img className="img-overview" src={meme.img} alt="No image here"/>
                         <div className="media-body">
@@ -67,7 +65,8 @@ function Overview() {
             {data && data.map((meme) =>
                 meme.permission == "public" &&
                 <Meme key={meme.url}
-                      meme={meme}/>
+                      meme={meme}
+                />
             )}
         </div>
     );
