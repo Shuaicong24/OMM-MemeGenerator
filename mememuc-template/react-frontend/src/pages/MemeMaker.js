@@ -205,6 +205,10 @@ function MemeMaker() {
         setTemplate(randomMeme)
     }
 
+    function handleLink() {
+        const memeInfo = [id, permission];
+        window.localStorage.setItem("firstMeme", memeInfo.toString());
+    }
 
     return (
         <div>
@@ -227,9 +231,9 @@ function MemeMaker() {
             </div>
             <div>
                 <form onSubmit={async e => {
-                        // Blocking page bounces
-                        e.preventDefault();
-                    }}
+                    // Blocking page bounces
+                    e.preventDefault();
+                }}
                 >
                     <Button variant="primary" onClick={handleShowUpload}>
                         Upload a new template
@@ -318,7 +322,9 @@ function MemeMaker() {
                     <p>{title}</p>
                     <img id="done" className="done" alt={"result-meme"} src={done}/>
                     {(permission == "public" || permission === "unlisted") &&
-                        <p style={{'marginTop': '4px'}}>Meme Link: <Link to={ `/m/${id}`}>{LINK_MEME_PREFIX}{id}</Link></p>}
+                        <p style={{'marginTop': '4px'}}>Meme Link: <Link to={`/m/${id}`}
+                                                                         onClick={handleLink}>{LINK_MEME_PREFIX}{id}</Link>
+                        </p>}
                     {permission == "private" && <p style={{'marginTop': '4px'}}>Now you can only download it!</p>}
 
                 </Modal.Body>

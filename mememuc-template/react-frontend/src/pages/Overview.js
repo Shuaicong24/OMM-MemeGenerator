@@ -26,6 +26,27 @@ function Overview() {
             });
     }, [])
 
+    const handleMeme = (meme) => {
+        const id = meme.url.substring(meme.url.lastIndexOf("/") + 1);
+        const memeInfo = [id, meme.permission];
+        window.localStorage.setItem("firstMeme", memeInfo.toString());
+    }
+
+    const Meme = ({meme}) => {
+        return (
+            <div id="singlepost" className="parent-div" key={meme.toString()}>
+                <a style={{"all": "unset"}} href={meme.url} onClick={handleMeme(meme)}>
+                    <div className="media-left">
+                        <img className="img-overview" src={meme.img} alt="No image here"/>
+                        <div className="media-body">
+                            <h5>{meme.title}</h5>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        );
+    }
+
     return (
         <div>
             <Navbar className="top">
@@ -45,16 +66,8 @@ function Overview() {
 
             {data && data.map((meme) =>
                 meme.permission == "public" &&
-                <div id="singlepost" className="parent-div" key={meme.id}>
-                    <a style={{"all": "unset"}} href={meme.url}>
-                        <div className="media-left">
-                            <img className="img-overview" src={meme.img} alt="No image here"/>
-                            <div className="media-body">
-                                <h5>{meme.title}</h5>
-                            </div>
-                        </div>
-                    </a>
-                </div>
+                <Meme key={meme.url}
+                      meme={meme}/>
             )}
         </div>
     );

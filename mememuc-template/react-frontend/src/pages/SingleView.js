@@ -19,6 +19,33 @@ function SingleView() {
     // localhost:3000/m/:id
     const {id} = useParams();
 
+    const Meme = ({meme}) => {
+        return (
+            <div>
+                <h4>{meme.title}</h4>
+                <div><img className='img' src={meme.img} alt="Generic placeholder image"/></div>
+                <Button className="button">
+                    previous
+                </Button>
+                <Button className="button">
+                    next
+                </Button>
+                <div className='comment_block'>
+                    <div className='comment'>
+                        <MultilineInput
+                            value={inputValue}
+                            id='comment'
+                            onchange={(e) => setInputValue(e.target.value)}
+                        />
+                    </div>
+                    <Button className="btn_comment">
+                        post comment
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+
     useEffect(() => {
         fetch("http://localhost:3002/memes/get-memes")
             .then(response => response.json())
@@ -31,34 +58,15 @@ function SingleView() {
                     }
                 })
             });
+        console.log(localStorage.getItem("firstMeme"));
     }, [])
 
     return (
         <div>
             {data && data.map(meme =>
                 meme.url == `http://localhost:3000/m/${id}` &&
-                <div>
-                    <h4>{meme.title}</h4>
-                    <div><img className='img' src={meme.img} alt="Generic placeholder image"/></div>
-                    <Button className="button">
-                        previous
-                    </Button>
-                    <Button className="button">
-                        next
-                    </Button>
-                    <div className='comment_block'>
-                        <div className='comment'>
-                            <MultilineInput
-                                value={inputValue}
-                                id='comment'
-                                onchange={(e) => setInputValue(e.target.value)}
-                            />
-                        </div>
-                        <Button className="btn_comment">
-                            post comment
-                        </Button>
-                    </div>
-                </div>
+                <Meme key={meme.toString()}
+                      meme={meme}/>
             )}
         </div>
     )
