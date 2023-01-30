@@ -100,7 +100,7 @@ function MemeMaker() {
 
     const handleShowGenerate = () => {
         const canvas = canvasRef.current;
-        if (meme != null && canvas.width != 0) {
+        if (meme != null && canvas.width !== 0) {
             if (!title) {
                 setTitle(caption);
             }
@@ -169,13 +169,13 @@ function MemeMaker() {
             x.json().then(response => {
                     setTemplates(response.data.memes);
                     handleRandom(response.data.memes);
+                    setAddedImages([]);
                 }
             ))
     }, []);
 
     const handleRandom = (memes) => {
         const index = Math.floor(Math.random() * memes.length);
-        console.log(memes[1]);
         setImage(null);
         setTemplate(memes[index]);
         const memeImage = new Image();
@@ -190,14 +190,14 @@ function MemeMaker() {
         const myCanvas = canvasRef.current;
 
         // assume that at this moment there is a pic on the canvas
-        if (meme.width != 0) {
+        if (meme.width !== 0) {
             myCanvas.width = meme.width;
             myCanvas.height = meme.height;
 
             const ctx = canvas.current.getContext("2d");
             ctx.fillStyle = "white";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(meme, 0, 0);
+            ctx.drawImage(meme, 0, 0, myCanvas.width, myCanvas.height);
 
             // store previous status of canvas
             const oldCanvas = document.createElement('canvas');
@@ -212,47 +212,24 @@ function MemeMaker() {
                 oldCanvasCtx.drawImage(myCanvas, 0, 0);
 
                 if (pos === 'left') {
-                    const addedImage = new Image();
-                    addedImage.src = imgUrl.toString();
-                    const ratioHeight = myCanvas.height / addedImage.height;
-                    addedImage.height = addedImage.height * ratioHeight;
-                    addedImage.width = addedImage.width * ratioHeight;
-
+                    const addedImage = alignImage(myCanvas, imgUrl, 'horizontal');
                     myCanvas.width = myCanvas.width + addedImage.width;
-
                     ctx.drawImage(addedImage, 0, 0, addedImage.width, addedImage.height);
                     ctx.drawImage(oldCanvas, addedImage.width, 0, oldCanvas.width, oldCanvas.height);
                 } else if (pos === 'right') {
-                    const addedImage = new Image();
-                    addedImage.src = imgUrl.toString();
-                    const ratioHeight = myCanvas.height / addedImage.height;
-                    addedImage.height = addedImage.height * ratioHeight;
-                    addedImage.width = addedImage.width * ratioHeight;
-
+                    const addedImage = alignImage(myCanvas, imgUrl, 'horizontal');
                     myCanvas.width = myCanvas.width + addedImage.width;
-
                     ctx.drawImage(oldCanvas, 0, 0, oldCanvas.width, oldCanvas.height);
                     ctx.drawImage(addedImage, oldCanvas.width, 0, addedImage.width, addedImage.height);
                 } else if (pos === 'above') {
-                    const addedImage = new Image();
-                    addedImage.src = imgUrl.toString();
-                    const ratioWidth = myCanvas.width / addedImage.width;
-                    addedImage.height = addedImage.height * ratioWidth;
-                    addedImage.width = addedImage.width * ratioWidth;
-
+                    const addedImage = alignImage(myCanvas, imgUrl, 'vertical');
                     myCanvas.height = myCanvas.height + addedImage.height;
 
                     ctx.drawImage(addedImage, 0, 0, addedImage.width, addedImage.height);
                     ctx.drawImage(oldCanvas, 0, addedImage.height, oldCanvas.width, oldCanvas.height);
                 } else if (pos === 'below') {
-                    const addedImage = new Image();
-                    addedImage.src = imgUrl.toString();
-                    const ratioWidth = myCanvas.width / addedImage.width;
-                    addedImage.height = addedImage.height * ratioWidth;
-                    addedImage.width = addedImage.width * ratioWidth;
-
+                    const addedImage = alignImage(myCanvas, imgUrl, 'vertical');
                     myCanvas.height = myCanvas.height + addedImage.height;
-
                     ctx.drawImage(oldCanvas, 0, 0, oldCanvas.width, oldCanvas.height);
                     ctx.drawImage(addedImage, 0, oldCanvas.height, addedImage.width, addedImage.height);
                 }
@@ -265,11 +242,38 @@ function MemeMaker() {
             ctx.fillText(topText, (myCanvas.width / 2), 100, myCanvas.width);
             ctx.fillText(bottomText, (myCanvas.width / 2), myCanvas.height - 100, myCanvas.width);
 
-
         } else {
             myCanvas.width = 0;
             myCanvas.height = 0;
         }
+    }
+
+    const alignImage = (myCanvas, imgUrl, pos) => {
+        const addedImage = new Image();
+        addedImage.src = imgUrl.toString();
+        let ratio = 1;
+        if (pos === 'horizontal')
+            ratio = myCanvas.height / addedImage.height;
+        if (pos === 'vertical')
+            ratio = myCanvas.width / addedImage.width;
+
+        addedImage.height = addedImage.height * ratio;
+        addedImage.width = addedImage.width * ratio;
+
+        return addedImage;
+    }
+
+    const resizeImage = (x) => {
+        let width = x.width;
+        let height = x.height;
+        console.log(`before resized image width: ${x.width}, height: ${x.height}`);
+
+        if (width > 200 || height > 200) {
+            const ratio = Math.min(200 / width, 200 / height);
+            x.width = x.width * ratio;
+            x.height = x.height * ratio;
+        }
+        console.log(`resized image width: ${x.width}, height: ${x.height}`);
     }
 
     const onImageChange = e => {
@@ -323,12 +327,10 @@ function MemeMaker() {
     }
 
     const appendImage = (imgUrl, pos) => {
-        console.log(`current appended images: ${addedImages.toString()}`);
         addedImages.push({
             imgUrl: imgUrl,
             pos: pos
         });
-        console.log(`updated appended images:${addedImages.toString()}`);
     }
 
     return (
@@ -403,17 +405,17 @@ function MemeMaker() {
                                 Set meme's permission
                                 <div>
                                     <input type="radio" name="privacy" value="public" id="public"
-                                           checked={permission == "public"} onChange={handlePermission}/>
+                                           checked={permission === "public"} onChange={handlePermission}/>
                                     <label htmlFor="public">Public <span style={{'fontSize': '12px'}}>(Provide single view link, show on Overview)</span></label>
                                 </div>
                                 <div>
                                     <input type="radio" name="privacy" value="unlisted" id="unlisted"
-                                           checked={permission == "unlisted"} onChange={handlePermission}/>
+                                           checked={permission === "unlisted"} onChange={handlePermission}/>
                                     <label htmlFor="unlisted">Unlisted <span style={{'fontSize': '12px'}}>(Provide single view link, doesn't show on Overview)</span></label>
                                 </div>
                                 <div>
                                     <input type="radio" name="privacy" value="private" id="private"
-                                           checked={permission == "private"} onChange={handlePermission}/>
+                                           checked={permission === "private"} onChange={handlePermission}/>
                                     <label htmlFor="private">Private <span style={{'fontSize': '12px'}}>(Only for download, and visible to the creator after login)</span></label>
                                 </div>
                             </div>
@@ -455,15 +457,15 @@ function MemeMaker() {
                 <Modal.Body>
                     <p>{title}</p>
                     <img id="done" className="done" alt={"result-meme"} src={done}/>
-                    {(permission == "public" || permission === "unlisted") &&
+                    {(permission === "public" || permission === "unlisted") &&
                         <p style={{'marginTop': '4px'}}>Meme Link: <Link to={`/m/${id}`}
                                                                          onClick={handleLink()}>{LINK_MEME_PREFIX}{id}</Link>
                         </p>}
-                    {permission == "private" && <p style={{'marginTop': '4px'}}>Now you can only download it!</p>}
+                    {permission === "private" && <p style={{'marginTop': '4px'}}>Now you can only download it!</p>}
 
                 </Modal.Body>
                 <Modal.Footer>
-                    {permission == "public" &&
+                    {permission === "public" &&
                         <Button variant="primary" href="/">
                             To Overview
                         </Button>}
