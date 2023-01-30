@@ -70,6 +70,8 @@ function MemeMaker() {
     const [added, setAdded] = useState(false);
     const [addedImages, setAddedImages] = useState([]);
 
+    const [uploadURL, setUploadURL] = useState('');
+
     const handleCloseUpload = () => {
         setShowUpload(false);
         setImage(null);
@@ -276,7 +278,7 @@ function MemeMaker() {
         console.log(`resized image width: ${x.width}, height: ${x.height}`);
     }
 
-    const onImageChange = e => {
+    const onImageChangeByFile = e => {
         if (e.target.files && e.target.files[0]) {
             setImage(URL.createObjectURL(e.target.files[0]));
         }
@@ -285,6 +287,29 @@ function MemeMaker() {
 
         setFilename(targetName);
     };
+    
+    const onImageChangeByURL = e => {
+        setUploadURL(e.target.value);
+
+        console.log(e.target.value);
+        fetch(e.target.value, {
+            method: "GET",
+            crossDomain: true,
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "Access-Control-Allow-Origin": "*",
+            },
+        }).then(x =>
+            x.json().then(response => {
+                   console.log(response, 'response');
+                }
+            )).catch((error) => {
+            console.log('Error: ', error);
+            alert('Failed to fetch image from url. Check if the URL is correct.');
+        });
+
+    }
 
     function clear() {
         setTopText('');
@@ -363,9 +388,10 @@ function MemeMaker() {
                     <Button variant="primary" onClick={handleShowUpload}>
                         Upload a new template
                     </Button>
-
-                    <p>* After choosing/uploading a template, it won't show immediately. You should add text or click
-                        again to see it on canvas.</p>
+                    <br/>
+                    * After choosing/uploading a template, it won't show immediately. You should add text or click
+                    again to see it on canvas.<br/>
+                    * After adding too many images, the canvas content is sometimes displayed incorrectly.
 
                     <div className="parent-div">
                         <div className="left-div">
@@ -435,7 +461,15 @@ function MemeMaker() {
                     <Modal.Title>Choose a way to upload</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <input type="file" onChange={onImageChange}/>
+                    <input type="file" onChange={onImageChangeByFile}/>
+                    {/*<p className="center-p">OR</p>*/}
+                    {/*<input*/}
+                    {/*    type="text" className="upload-url"*/}
+                    {/*    placeholder="Paste an image URL"*/}
+                    {/*    value={uploadURL}*/}
+                    {/*    onChange={onImageChangeByURL} />*/}
+                    {/*<p className="center-p">OR</p>*/}
+                    {/*<Button>Click to draw a template</Button>*/}
                     <div>
                         {image && <img id="thumbnail" className="thumbnail" src={image} alt={"image"}/>}
                     </div>

@@ -59,3 +59,12 @@ input {
     width: 50%;
     float:right;
 }
+
+.center-p {
+    text-align: center;
+    font-weight: bold;
+}
+
+.upload-url {
+    width: 100%;
+}
