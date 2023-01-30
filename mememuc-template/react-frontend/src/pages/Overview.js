@@ -2,9 +2,10 @@
  * References:
  * https://react-bootstrap.github.io/components/navbar/
  * https://www.youtube.com/watch?v=SLfhMt5OUPI
- * https://www.youtube.com/watch?v=bBUOMy6Tugw (Not used yet)
  * https://getbootstrap.com/docs/4.0/layout/media-object/#example
  * https://stackoverflow.com/questions/8919682/remove-all-styling-formatting-from-hyperlinks
+ * Endless scroll:
+ * https://www.youtube.com/watch?v=xHm6AbNwAw8
  * Sort by Alphabet:
  * https://stackoverflow.com/questions/19259233/sorting-json-by-specific-element-alphabetically
  * */
@@ -20,6 +21,7 @@ import "../styles/overview.css";
 function Overview() {
     const [data, setData] = useState([]);
     const [sort, setSort] = useState('default');
+    const [index, setIndex] = useState(0);
 
     useEffect(() => {
         fetch(" http://localhost:3002/memes/get-memes")
@@ -29,6 +31,23 @@ function Overview() {
                 console.log(data, "getMeme");
             });
     }, [])
+
+    const sortedData = (data) => {
+        if (sort === "default")
+            return data;
+        if (sort === "latest") {
+            data.sort(function (a, b) {
+                return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
+            })
+            return data;
+        }
+        if (sort === "title") {
+            data.sort( function (a, b) {
+                return a.title < b.title ? -1 : a.title > b.title ? 1 : 0;
+            })
+            return data;
+        }
+    }
 
     const handleMeme = () => {
         window.localStorage.setItem("memeFrom", "Overview");
@@ -60,6 +79,23 @@ function Overview() {
             </div>
         );
     }
+
+    function loadImages(numPost = 10) {
+        const container = document.getElementById("container");
+        let i = 0;
+        while (i < numPost) {
+            const img = document.createElement('img');
+            img.src = 'http://5b0988e595225.cdn.sohucs.com/images/20200513/d483e2636be940019ef502a47f33c18a.jpeg';
+            container.appendChild(img);
+            i++;
+        }
+    }
+
+    // window.addEventListener('scroll', () => {
+    //     if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight) {
+    //         loadImages();
+    //     }
+    // });
 
     return (
         <div>
