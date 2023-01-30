@@ -15,7 +15,7 @@ const MemeSchema = new mongoose.Schema(
         url: {type: String, required: true},
         img: {type: String, required: true},
         date: {type: String, required: true},
-        author: {type: String},
+        author: {type: String, required: true},
         permission: {type: String, required: true},
     },
     {

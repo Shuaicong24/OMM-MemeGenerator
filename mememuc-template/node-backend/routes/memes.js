@@ -31,6 +31,7 @@ router.post("/upload-meme", upload.single("file"), async (req, res) => {
         url: req.body.url,
         img: `http://localhost:3002/memes/${req.file.filename}`,
         date: Date.now(),
+        author: req.body.author,
         permission: req.body.permission
     });
 

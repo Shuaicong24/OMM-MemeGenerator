@@ -5,8 +5,8 @@
 }
 
 canvas {
-    margin-top: 15px;
-    width: 50%;
+    margin-top: 10px;
+    width: 90%;
     display: inline;
 }
 
@@ -42,4 +42,20 @@ Button {
 
 input {
     margin: 2px;
+}
+
+.parent-div {
+    width: 80%;
+    margin: 10px auto;
+}
+
+.left-div {
+    width: 50%;
+    float:left;
+}
+
+.right-div {
+    text-align: left;
+    width: 50%;
+    float:right;
 }

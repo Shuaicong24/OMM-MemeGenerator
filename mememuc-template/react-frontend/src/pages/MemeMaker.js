@@ -23,6 +23,8 @@
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now
  * Redirect to dynamic URLs (Single View URL):
  * https://medium.com/@s.alexis/using-react-router-useparams-to-fetch-data-dynamically-13288e24ed1
+ * The idea that adding an image does not change the current image on the canvas, i.e. continuously append pictures, using an array:
+ * help from Xueru Zheng, Group 070
  * */
 
 import React, {useEffect, useRef, useState} from "react";
@@ -62,24 +64,34 @@ function MemeMaker() {
     const [id, setId] = useState('');
     const [permission, setPermission] = useState('public');
 
+    const [showAddImage, setShowAddImage] = useState(false);
+    const [addImage, setAddImage] = useState(null);
+    const [append, setAppend] = useState('undefined');
+    const [added, setAdded] = useState(false);
+    const [addedImages, setAddedImages] = useState([]);
+
     const handleCloseUpload = () => {
         setShowUpload(false);
         setImage(null);
     };
+
     const handleShowUpload = () => {
         setShowUpload(true);
         setImage(null);
     };
+
     const handleUpload = () => {
         const memeImage = new Image();
         setShowUpload(false);
         setTemplate(null);
         setImage(image);
-        memeImage.src = image.toString();
         memeImage.crossOrigin = "anonymous"
+        memeImage.src = image.toString();
         setMeme(memeImage);
         setCaption(filename);
         setTitle('');
+        setAdded(false);
+        setAddedImages([]);
     };
 
     const handleCloseGenerate = () => {
@@ -88,7 +100,6 @@ function MemeMaker() {
 
     const handleShowGenerate = () => {
         const canvas = canvasRef.current;
-
         if (meme != null && canvas.width != 0) {
             if (!title) {
                 setTitle(caption);
@@ -128,7 +139,7 @@ function MemeMaker() {
 
         formData.append("url", url);
         formData.append("file", convertDataToBlob(dataURL));
-        formData.append("author", '');
+        formData.append("author", 'anonymous');
         formData.append("permission", permission);
 
         fetch(" http://localhost:3002/memes/upload-meme", {
@@ -155,9 +166,25 @@ function MemeMaker() {
 
     useEffect(() => {
         fetch("https://api.imgflip.com/get_memes").then(x =>
-            x.json().then(response => setTemplates(response.data.memes))
-        );
+            x.json().then(response => {
+                    setTemplates(response.data.memes);
+                    handleRandom(response.data.memes);
+                }
+            ))
     }, []);
+
+    const handleRandom = (memes) => {
+        const index = Math.floor(Math.random() * memes.length);
+        console.log(memes[1]);
+        setImage(null);
+        setTemplate(memes[index]);
+        const memeImage = new Image();
+        memeImage.crossOrigin = "anonymous"
+        memeImage.src = memes[index].url.toString();
+        setMeme(memeImage);
+        setCaption(memes[index].name);
+        setTitle('');
+    }
 
     function draw(canvas) {
         const myCanvas = canvasRef.current;
@@ -172,12 +199,73 @@ function MemeMaker() {
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(meme, 0, 0);
 
+            // store previous status of canvas
+            const oldCanvas = document.createElement('canvas');
+            const oldCanvasCtx = oldCanvas.getContext('2d');
+
+            for (let i = 0; i < addedImages.length; i++) {
+                const imgUrl = addedImages[i].imgUrl;
+                const pos = addedImages[i].pos;
+
+                oldCanvas.width = myCanvas.width;
+                oldCanvas.height = myCanvas.height;
+                oldCanvasCtx.drawImage(myCanvas, 0, 0);
+
+                if (pos === 'left') {
+                    const addedImage = new Image();
+                    addedImage.src = imgUrl.toString();
+                    const ratioHeight = myCanvas.height / addedImage.height;
+                    addedImage.height = addedImage.height * ratioHeight;
+                    addedImage.width = addedImage.width * ratioHeight;
+
+                    myCanvas.width = myCanvas.width + addedImage.width;
+
+                    ctx.drawImage(addedImage, 0, 0, addedImage.width, addedImage.height);
+                    ctx.drawImage(oldCanvas, addedImage.width, 0, oldCanvas.width, oldCanvas.height);
+                } else if (pos === 'right') {
+                    const addedImage = new Image();
+                    addedImage.src = imgUrl.toString();
+                    const ratioHeight = myCanvas.height / addedImage.height;
+                    addedImage.height = addedImage.height * ratioHeight;
+                    addedImage.width = addedImage.width * ratioHeight;
+
+                    myCanvas.width = myCanvas.width + addedImage.width;
+
+                    ctx.drawImage(oldCanvas, 0, 0, oldCanvas.width, oldCanvas.height);
+                    ctx.drawImage(addedImage, oldCanvas.width, 0, addedImage.width, addedImage.height);
+                } else if (pos === 'above') {
+                    const addedImage = new Image();
+                    addedImage.src = imgUrl.toString();
+                    const ratioWidth = myCanvas.width / addedImage.width;
+                    addedImage.height = addedImage.height * ratioWidth;
+                    addedImage.width = addedImage.width * ratioWidth;
+
+                    myCanvas.height = myCanvas.height + addedImage.height;
+
+                    ctx.drawImage(addedImage, 0, 0, addedImage.width, addedImage.height);
+                    ctx.drawImage(oldCanvas, 0, addedImage.height, oldCanvas.width, oldCanvas.height);
+                } else if (pos === 'below') {
+                    const addedImage = new Image();
+                    addedImage.src = imgUrl.toString();
+                    const ratioWidth = myCanvas.width / addedImage.width;
+                    addedImage.height = addedImage.height * ratioWidth;
+                    addedImage.width = addedImage.width * ratioWidth;
+
+                    myCanvas.height = myCanvas.height + addedImage.height;
+
+                    ctx.drawImage(oldCanvas, 0, 0, oldCanvas.width, oldCanvas.height);
+                    ctx.drawImage(addedImage, 0, oldCanvas.height, addedImage.width, addedImage.height);
+                }
+            }
+
             ctx.font = "60px Comic Sans MS";
             ctx.fillStyle = "green";
             ctx.textAlign = "center";
 
             ctx.fillText(topText, (myCanvas.width / 2), 100, myCanvas.width);
             ctx.fillText(bottomText, (myCanvas.width / 2), myCanvas.height - 100, myCanvas.width);
+
+
         } else {
             myCanvas.width = 0;
             myCanvas.height = 0;
@@ -203,6 +291,46 @@ function MemeMaker() {
         window.localStorage.setItem("memeFrom", "MemeMaker");
     }
 
+    const handleAddImage = () => {
+        setShowAddImage(true);
+        setAppend('undefined');
+        setAddImage(null);
+        setAdded(false);
+    }
+
+    const handleCloseAddImage = () => {
+        setShowAddImage(false);
+        setAddImage(null);
+        setAdded(false);
+    }
+
+    const onAddImageChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            setAddImage(URL.createObjectURL(e.target.files[0]));
+        }
+    }
+
+    const handleAddedImageUpload = () => {
+        setShowAddImage(false);
+        setTemplate(null);
+        setImage(null);
+        setAdded(true);
+        appendImage(addImage, append);
+    }
+
+    const handleAppend = (e) => {
+        setAppend(e.target.value);
+    }
+
+    const appendImage = (imgUrl, pos) => {
+        console.log(`current appended images: ${addedImages.toString()}`);
+        addedImages.push({
+            imgUrl: imgUrl,
+            pos: pos
+        });
+        console.log(`updated appended images:${addedImages.toString()}`);
+    }
+
     return (
         <div>
             <div className="template-area">
@@ -213,11 +341,13 @@ function MemeMaker() {
                                       setImage(null);
                                       setTemplate(template);
                                       const memeImage = new Image();
-                                      memeImage.src = template.url.toString();
                                       memeImage.crossOrigin = "anonymous"
+                                      memeImage.src = template.url.toString();
                                       setMeme(memeImage);
                                       setCaption(template.name);
                                       setTitle('');
+                                      setAdded(false);
+                                      setAddedImages([]);
                                   }}
                     />)
                 })}
@@ -235,58 +365,69 @@ function MemeMaker() {
                     <p>* After choosing/uploading a template, it won't show immediately. You should add text or click
                         again to see it on canvas.</p>
 
-                    Name a title
-                    <input
-                        type="text"
-                        placeholder={'name it'}
-                        value={title}
-                        onChange={e => setTitle(e.target.value)}
-                    />
-                    <br/>
-                    <canvas id="meme-canvas" ref={canvasRef} width="0" height="0">
-                        {meme && draw(canvasRef)}
-                    </canvas>
-                    <p>{caption}</p>
-
-
-                    <br/>
-                    <input
-                        placeholder="top text"
-                        value={topText}
-                        onChange={e => setTopText(e.target.value)}
-                    />
-                    <br/>
-                    <input
-                        placeholder="bottom text"
-                        value={bottomText}
-                        onChange={e => setBottomText(e.target.value)}
-                    />
-                    <br/>
-
-                    <Button onClick={clear}>Clear</Button>
-                    <div>
-                        <p>Set meme's permission</p>
-                        <div>
-                            <input type="radio" name="privacy" value="public" id="public"
-                                   checked={permission == "public"} onChange={handlePermission}/>
-                            <label htmlFor="public">Public <span style={{'fontSize': '12px'}}>(Provide single view link, show on Overview)</span></label>
+                    <div className="parent-div">
+                        <div className="left-div">
+                            <div className="options">
+                                <Button type="submit" onClick={handleAddImage}>Add image</Button>
+                            </div>
+                            <canvas id="meme-canvas" ref={canvasRef} width="0" height="0">
+                                {meme && draw(canvasRef)}
+                            </canvas>
+                            <p>{caption}</p>
+                            <br/>
                         </div>
-                        <div>
-                            <input type="radio" name="privacy" value="unlisted" id="unlisted"
-                                   checked={permission == "unlisted"} onChange={handlePermission}/>
-                            <label htmlFor="unlisted">Unlisted <span style={{'fontSize': '12px'}}>(Provide single view link, doesn't show on Overview)</span></label>
+                        <div className="right-div">
+                            Name a title
+                            <input
+                                type="text"
+                                placeholder={'name it'}
+                                value={title}
+                                onChange={e => setTitle(e.target.value)}
+                            />
+                            <br/>
+                            <input
+                                placeholder="top text"
+                                value={topText}
+                                onChange={e => setTopText(e.target.value)}
+                            />
+                            <br/>
+                            <input
+                                placeholder="bottom text"
+                                value={bottomText}
+                                onChange={e => setBottomText(e.target.value)}
+                            />
+                            <br/>
+
+                            <Button onClick={clear}>Clear</Button>
+                            <div>
+                                Set meme's permission
+                                <div>
+                                    <input type="radio" name="privacy" value="public" id="public"
+                                           checked={permission == "public"} onChange={handlePermission}/>
+                                    <label htmlFor="public">Public <span style={{'fontSize': '12px'}}>(Provide single view link, show on Overview)</span></label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="privacy" value="unlisted" id="unlisted"
+                                           checked={permission == "unlisted"} onChange={handlePermission}/>
+                                    <label htmlFor="unlisted">Unlisted <span style={{'fontSize': '12px'}}>(Provide single view link, doesn't show on Overview)</span></label>
+                                </div>
+                                <div>
+                                    <input type="radio" name="privacy" value="private" id="private"
+                                           checked={permission == "private"} onChange={handlePermission}/>
+                                    <label htmlFor="private">Private <span style={{'fontSize': '12px'}}>(Only for download, and visible to the creator after login)</span></label>
+                                </div>
+                            </div>
+                            <Button id="generate" type="submit" onClick={handleShowGenerate}>Generate meme</Button>
+
                         </div>
-                        <div>
-                            <input type="radio" name="privacy" value="private" id="private"
-                                   checked={permission == "private"} onChange={handlePermission}/>
-                            <label htmlFor="private">Private <span style={{'fontSize': '12px'}}>(Only for download, and visible to the creator after login)</span></label>
-                        </div>
+
                     </div>
-                    <Button id="generate" type="submit" onClick={handleShowGenerate}>Generate meme</Button>
+
+
                 </form>
 
             </div>
-            <script></script>
+
             <Modal show={showUpload} onHide={handleCloseUpload}>
                 <Modal.Header closeButton>
                     <Modal.Title>Choose a way to upload</Modal.Title>
@@ -331,6 +472,44 @@ function MemeMaker() {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+            <Modal show={showAddImage} onHide={handleCloseAddImage}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Choose a way to append an image</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div>
+                        <input type="radio" name="append" value="left" id="left"
+                               checked={append === "left"} onChange={handleAppend}/>
+                        <label htmlFor="left">Left</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="append" value="right" id="right"
+                               checked={append === "right"} onChange={handleAppend}/>
+                        <label htmlFor="right">Right</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="append" value="above" id="above"
+                               checked={append === "above"} onChange={handleAppend}/>
+                        <label htmlFor="above">Above</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="append" value="below" id="below"
+                               checked={append === "below"} onChange={handleAppend}/>
+                        <label htmlFor="below">Below</label>
+                    </div>
+                    <input type="file" onChange={onAddImageChange}/>
+                    <div>
+                        {addImage && <img id="thumbnail" className="thumbnail" src={addImage} alt={"image"}/>}
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" onClick={handleAddedImageUpload}>
+                        Upload
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
         </div>
     )
 }
