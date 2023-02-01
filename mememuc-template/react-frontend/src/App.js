@@ -14,6 +14,7 @@ import Navbar from './pages/Nav';
 import LoggedIn from "./pages/LoggedIn";
 import MemeMaker from "./pages/MemeMaker";
 import SingleView from "./pages/SingleView";
+import History from "./pages/History";
 
 function App() {
     return (
@@ -28,6 +29,7 @@ function App() {
                 <Route path='/userDetails' element={<LoggedIn/>}/>
                 <Route path='/mememaker' element={<MemeMaker/>}/>
                 <Route path='/m/:id' element={<SingleView/>}/>
+                <Route path='/my-history' element={<History/>}/>
             </Routes>
         </div>
     );

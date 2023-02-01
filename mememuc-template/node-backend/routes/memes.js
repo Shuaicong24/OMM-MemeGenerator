@@ -3,6 +3,11 @@
  * help from Xueru Zheng, Group 070
  * https://www.bezkoder.com/node-js-upload-store-images-mongodb/
  * https://stackoverflow.com/questions/54979632/get-formdata-values-on-backend-side
+ *
+ * Query:
+ * https://codesandbox.io/s/requests-yctc5?file=/src/index.js
+ * https://www.youtube.com/watch?v=-NBNF2yURm8
+ *
  * */
 
 var express = require("express");
@@ -45,9 +50,38 @@ router.post("/upload-meme", upload.single("file"), async (req, res) => {
 
 router.get("/get-memes", async function (req, res, next) {
     console.log('Get request for all memes');
-    memeModel.find({})
+    if (req.query.username) {
+        const param = req.query.username;
+        console.log('Param', param);
+
+        memeModel.find({author: param.toString()})
+            .then((data) => {
+                console.log('Memes by param.toString(): ', data);
+                res.send(data);
+            })
+            .catch((error) => {
+                res.status(500).send(error);
+            });
+    } else {
+        memeModel.find()
+            .then((data) => {
+                console.log('All public memes: ', data);
+                res.send(data);
+            })
+            .catch((error) => {
+                res.status(500).send(error);
+            });
+    }
+});
+
+router.get("/get-memes-by-someone", async function (req, res, next) {
+    console.log('Get request for all memes by someone');
+    const {username} = req.body;
+    console.log(`req.body = ${username}`);
+
+    memeModel.find({author: username})
         .then((data) => {
-            console.log('Memes: ', data);
+            console.log('Memes of someone: ', data);
             res.send(data);
         })
         .catch((error) => {

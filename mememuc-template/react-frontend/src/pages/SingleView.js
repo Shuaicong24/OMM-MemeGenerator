@@ -14,7 +14,7 @@ function SingleView() {
     // localhost:3000/m/:id
     const {id} = useParams();
     const [data, setData] = useState([]);
-    const [inputValue, setInputValue] = useState('Please comment here...');
+    const [inputValue, setInputValue] = useState('');
     const [publicData, setPublicData] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(-1);
 
@@ -101,7 +101,8 @@ function SingleView() {
     const Meme = ({meme}) => {
         return (
             <div>
-                <h4>{meme.title}</h4>
+                <h4>{meme.title}</h4><span style={{'fontSize': '12px'}}>by {meme.author}</span>
+
                 <div><img className='img' src={meme.img} alt="Generic placeholder image"/></div>
                 <Button className="button" onClick={handleLeft}>
                     left
@@ -115,6 +116,7 @@ function SingleView() {
                 <div className='comment_block'>
                     <div className='comment'>
                         <MultilineInput
+                            placeholder={'Please comment here...'}
                             value={inputValue}
                             id='comment'
                             onChange={(e) => setInputValue(e.target.value)}

@@ -141,7 +141,14 @@ function MemeMaker() {
 
         formData.append("url", url);
         formData.append("file", convertDataToBlob(dataURL));
-        formData.append("author", 'anonymous');
+
+        const loggedUsername = localStorage.getItem("loggedUsername");
+        if (loggedUsername === "") {
+            formData.append("author", 'anonymous');
+        } else {
+            formData.append("author", loggedUsername);
+        }
+
         formData.append("permission", permission);
 
         fetch(" http://localhost:3002/memes/upload-meme", {

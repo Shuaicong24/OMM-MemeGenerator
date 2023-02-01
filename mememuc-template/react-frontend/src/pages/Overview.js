@@ -24,30 +24,13 @@ function Overview() {
     const [index, setIndex] = useState(0);
 
     useEffect(() => {
-        fetch(" http://localhost:3002/memes/get-memes")
+        fetch("http://localhost:3002/memes/get-memes")
             .then((res) => res.json())
             .then((data) => {
                 setData(data);
                 console.log(data, "getMeme");
             });
     }, [])
-
-    const sortedData = (data) => {
-        if (sort === "default")
-            return data;
-        if (sort === "latest") {
-            data.sort(function (a, b) {
-                return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
-            })
-            return data;
-        }
-        if (sort === "title") {
-            data.sort( function (a, b) {
-                return a.title < b.title ? -1 : a.title > b.title ? 1 : 0;
-            })
-            return data;
-        }
-    }
 
     const handleMeme = () => {
         window.localStorage.setItem("memeFrom", "Overview");
@@ -73,6 +56,7 @@ function Overview() {
                         <img className="img-overview" src={meme.img} alt="No image here"/>
                         <div className="media-body">
                             <h5>{meme.title}</h5>
+                            <span style={{'fontSize': '12px'}}>by {meme.author}</span>
                         </div>
                     </div>
                 </a>

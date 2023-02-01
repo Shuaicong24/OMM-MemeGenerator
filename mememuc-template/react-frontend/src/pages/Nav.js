@@ -65,18 +65,19 @@ class NavigationBar extends React.Component {
                             </Form>
                         </Nav>
                         <Nav id="navbar">
-                            <Nav.Link href="about">About</Nav.Link>
+                            <Nav.Link href="/about">About</Nav.Link>
                             <Nav>
                                 {
                                     (
-                                        window.localStorage.getItem("logStatus") == "notLogged" ||
+                                        window.localStorage.getItem("logStatus") === "notLogged" ||
                                         window.localStorage.getItem("logStatus") == null
                                     ) &&
-                                    <Nav.Link id="sign-in" href="sign-in">Log In</Nav.Link>
+                                    <Nav.Link id="sign-in" href="/sign-in">Log In</Nav.Link>
                                 }
                                 {
-                                    window.localStorage.getItem("logStatus") == "logged" &&
+                                    window.localStorage.getItem("logStatus") === "logged" &&
                                     <NavDropdown title={localStorage.getItem("loggedUsername")}>
+                                        <NavDropdown.Item href="/my-history">My History</NavDropdown.Item>
                                         <NavDropdown.Item href="/" onClick={this.handleSignOut}>Log
                                             Out</NavDropdown.Item>
                                     </NavDropdown>

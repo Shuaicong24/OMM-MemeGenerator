@@ -39,13 +39,12 @@ class Login extends React.Component {
                 console.log(data, "userLogin");
                 localStorage.setItem("logStatus", "notLogged");
 
-                if (data.status == "ok") {
+                if (data.status === "ok") {
                     alert("Login successful");
                     window.localStorage.setItem("logStatus", "logged");
                     window.localStorage.setItem("loggedUsername", username);
                     window.localStorage.setItem("token", data.data);
-                    window.location.href = "./userDetails";
-
+                    window.location.href = "/";
                 }
             });
     }
