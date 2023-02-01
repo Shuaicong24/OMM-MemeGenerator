@@ -10,6 +10,7 @@ import {MultilineInput} from 'react-input-multiline';
 import {useParams} from 'react-router-dom';
 import Button from "react-bootstrap/Button";
 
+//TODO: Left and right buttons need to be correctly matched for different cases of data (like data from Overview, from provided Link after generation (MemeMaker), from History, and so on.)
 function SingleView() {
     // localhost:3000/m/:id
     const {id} = useParams();
