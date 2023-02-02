@@ -144,7 +144,7 @@ function MemeMaker() {
 
         const loggedUsername = localStorage.getItem("loggedUsername");
         if (loggedUsername === "") {
-            formData.append("author", 'anonymous');
+            formData.append("author", 'x');
         } else {
             formData.append("author", loggedUsername);
         }
@@ -324,7 +324,13 @@ function MemeMaker() {
     }
 
     function handleLink() {
-        window.localStorage.setItem("memeFrom", "MemeMaker");
+        localStorage.setItem("memeFrom", "MemeMaker");
+        if (permission === 'unlisted') {
+            localStorage.setItem("isPublic", "false");
+        }
+        if (permission === 'public') {
+            localStorage.setItem("isPublic", "true");
+        }
     }
 
     const handleAddImage = () => {

@@ -10,33 +10,41 @@ import {MultilineInput} from 'react-input-multiline';
 import {useParams} from 'react-router-dom';
 import Button from "react-bootstrap/Button";
 
-//TODO: Left and right buttons need to be correctly matched for different cases of data (like data from Overview, from provided Link after generation (MemeMaker), from History, and so on.)
 function SingleView() {
     // localhost:3000/m/:id
     const {id} = useParams();
     const [data, setData] = useState([]);
-    const [inputValue, setInputValue] = useState('');
     const [publicData, setPublicData] = useState([]);
+    const [inputValue, setInputValue] = useState('');
     const [currentIndex, setCurrentIndex] = useState(-1);
 
-    const firstMeme = (array) => {
-        const memeFrom = window.localStorage.getItem('memeFrom');
-        if (memeFrom === 'Overview') {
-            for (let i = 0; i < array.length; i++) {
-                if (array[i].url === `http://localhost:3000/m/${id}`) {
-                    setCurrentIndex(i);
-                }
+    useEffect(() => {
+        fetchAllData();
+        fetchPublicData();
+    }, [])
+
+    const fetchAllData = () => {
+        fetch("http://localhost:3002/memes/get-memes")
+            .then(response => response.json())
+            .then(data => {
+                setData(data);
+            });
+    }
+
+    const fetchPublicData = () => {
+        fetch("http://localhost:3002/memes/get-public-memes")
+            .then(response => response.json())
+            .then(data => {
+                setPublicData(data);
+                confirmFirstMemeAndIndex(data);
+            });
+    }
+
+    const confirmFirstMemeAndIndex = (data) => {
+        for (let i = 0; i < data.length; i++) {
+            if (data[i].url === `http://localhost:3000/m/${id}`) {
+                setCurrentIndex(i);
             }
-        }
-        if (memeFrom === 'MemeMaker') {
-            let isPublic = 'false';
-            for (let i = 0; i < array.length; i++) {
-                if (array[i].url === `http://localhost:3000/m/${id}`) {
-                    isPublic = 'true';
-                    setCurrentIndex(i);
-                }
-            }
-            localStorage.setItem('isPublic', isPublic);
         }
     }
 
@@ -48,46 +56,67 @@ function SingleView() {
     }
 
     const handleLeft = () => {
-        const memeFrom = window.localStorage.getItem("memeFrom");
+        const memeFrom = localStorage.getItem("memeFrom");
+        const isPublic = localStorage.getItem('isPublic');
 
-        if (memeFrom === 'Overview') {
-            if (currentIndex !== 0) {
+        if (memeFrom === 'Overview' || memeFrom === 'History') {
+            if (currentIndex > 0) {
                 doLeft(currentIndex);
             } else {
-                alert('Current is the first one, cannot find the older one');
+                alert('Current is the first one, cannot find the previous one');
             }
         }
 
         if (memeFrom === 'MemeMaker') {
-            const isPublic = localStorage.getItem('isPublic');
             if (isPublic === 'true') {
-                if (currentIndex !== 0) {
-                    doLeft(currentIndex);
+                if (currentIndex < publicData.length - 1) {
+                    doRight(currentIndex);
                 } else {
-                    alert('Current is the first one, cannot find the older one');
+                    alert('Current is the first one, cannot find the previous one');
                 }
             } else {
                 if (currentIndex > 0) {
                     doLeft(currentIndex);
                 }
                 if (currentIndex === -1 || currentIndex === 0) {
-                    alert('Current is the first one, cannot find the older one');
+                    alert('Current is the first one, cannot find the previous one');
                 }
             }
         }
     }
 
-    const handleRight = () => {
-        const memeFrom = window.localStorage.getItem("memeFrom");
+    const doRight = (currentIndex) => {
+        const newMemeUrl = publicData[currentIndex + 1].url;
+        const newId = newMemeUrl.substring(newMemeUrl.lastIndexOf('/') + 1);
+        window.location = `http://localhost:3000/m/${newId}`;
+        setCurrentIndex(currentIndex + 1);
+    }
 
-        if ((memeFrom === 'Overview' || memeFrom === 'MemeMaker') && currentIndex !== publicData.length - 1) {
-            const newMemeUrl = publicData[currentIndex + 1].url;
-            const newId = newMemeUrl.substring(newMemeUrl.lastIndexOf('/') + 1);
-            window.location = `http://localhost:3000/m/${newId}`;
-            setCurrentIndex(currentIndex + 1);
+    const handleRight = () => {
+        const memeFrom = localStorage.getItem("memeFrom");
+        const isPublic = localStorage.getItem('isPublic');
+
+        if ((memeFrom === 'Overview' || memeFrom === 'History')) {
+            if (currentIndex !== publicData.length - 1) {
+                doRight(currentIndex);
+            } else {
+                alert('Current is the last one, cannot find the next one');
+            }
         }
-        if (currentIndex === publicData.length - 1) {
-            alert('Current is the last one, cannot find the latest one');
+        if (memeFrom === 'MemeMaker') {
+            if (isPublic === 'true') {
+                if (currentIndex !== 0) {
+                    doLeft(currentIndex);
+                } else {
+                    alert('Current is the last one, cannot find the next one');
+                }
+            } else {
+                if (currentIndex < publicData.length - 1) {
+                    doRight(currentIndex);
+                } else {
+                    alert('Current is the last one, cannot find the next one');
+                }
+            }
         }
     }
 
@@ -130,26 +159,6 @@ function SingleView() {
             </div>
         );
     }
-
-    function getPublicMeme(data) {
-        const array = [];
-        data.forEach(meme => {
-            if (meme.permission === 'public') {
-                array.push(meme);
-            }
-        })
-        setPublicData(array);
-        firstMeme(array);
-    }
-
-    useEffect(() => {
-        fetch("http://localhost:3002/memes/get-memes")
-            .then(response => response.json())
-            .then(data => {
-                setData(data);
-                getPublicMeme(data);
-            });
-    }, [])
 
     return (
         <div>
