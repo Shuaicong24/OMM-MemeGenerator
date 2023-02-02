@@ -8,6 +8,8 @@
  * https://www.youtube.com/watch?v=xHm6AbNwAw8
  * Sort by Alphabet:
  * https://stackoverflow.com/questions/19259233/sorting-json-by-specific-element-alphabetically
+ * Read current URL:
+ * https://stackoverflow.com/questions/39823681/read-the-current-full-url-with-react
  * */
 
 import React, {useState, useEffect} from "react";
@@ -17,7 +19,6 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import "../styles/overview.css";
 
-// TODO (Bug): When we refresh the page '/#sort=latest', the URL doesn't change, but the content will be the same as the home page.
 function Overview() {
     const [data, setData] = useState([]);
     const [sort, setSort] = useState('default');
@@ -30,6 +31,16 @@ function Overview() {
                 setData(data);
                 console.log(data, "getMeme");
             });
+
+        const url = window.location.href;
+        const suffix = url.substring(url.lastIndexOf('/'), url.length);
+        if (suffix === '/') {
+            setSort("default");
+        } else if (suffix === '/#sort=latest') {
+            setSort("latest");
+        } else if (suffix === '/#sort=title') {
+            setSort("title");
+        }
     }, [])
 
     const handleMeme = () => {
@@ -37,15 +48,15 @@ function Overview() {
     }
 
     const handleDefault = () => {
-        setSort('default');
+        setSort("default");
     }
 
     const handleLatest = () => {
-       setSort('latest');
+       setSort("latest");
     }
 
     const handleTitle = () => {
-        setSort('title');
+        setSort("title");
     }
 
     const Meme = ({meme}) => {
