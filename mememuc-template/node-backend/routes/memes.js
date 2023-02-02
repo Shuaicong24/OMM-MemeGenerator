@@ -65,7 +65,7 @@ router.get("/get-memes", async function (req, res, next) {
     } else {
         memeModel.find()
             .then((data) => {
-                console.log('All public memes: ', data);
+                console.log('All memes: ', data);
                 res.send(data);
             })
             .catch((error) => {
@@ -74,14 +74,32 @@ router.get("/get-memes", async function (req, res, next) {
     }
 });
 
-router.get("/get-memes-by-someone", async function (req, res, next) {
-    console.log('Get request for all memes by someone');
-    const {username} = req.body;
-    console.log(`req.body = ${username}`);
-
-    memeModel.find({author: username})
+router.get("/get-public-memes", async function (req, res) {
+    memeModel.find({permission: 'public'})
         .then((data) => {
-            console.log('Memes of someone: ', data);
+            console.log('Data after sorting by default: ', data);
+            res.send(data);
+        })
+        .catch((error) => {
+            res.status(500).send(error);
+        });
+});
+
+router.get("/get-public-memes-sort-by-date", async function (req, res) {
+    memeModel.find({permission: 'public'}).sort({date: -1})
+        .then((data) => {
+            console.log('Data after sorting by date: ', data);
+            res.send(data);
+        })
+        .catch((error) => {
+            res.status(500).send(error);
+        });
+});
+
+router.get("/get-public-memes-sort-by-title", async function (req, res) {
+    memeModel.find({permission: 'public'}).sort({title: 1})
+        .then((data) => {
+            console.log('Data after sorting by title: ', data);
             res.send(data);
         })
         .catch((error) => {

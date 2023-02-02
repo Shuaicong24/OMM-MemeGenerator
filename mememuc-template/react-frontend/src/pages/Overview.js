@@ -25,21 +25,17 @@ function Overview() {
     const [index, setIndex] = useState(0);
 
     useEffect(() => {
-        fetch("http://localhost:3002/memes/get-memes")
-            .then((res) => res.json())
-            .then((data) => {
-                setData(data);
-                console.log(data, "getMeme");
-            });
-
         const url = window.location.href;
         const suffix = url.substring(url.lastIndexOf('/'), url.length);
         if (suffix === '/') {
             setSort("default");
+            fetchPublicMemesSortByDefault();
         } else if (suffix === '/#sort=latest') {
             setSort("latest");
+            fetchPublicMemesSortByDate();
         } else if (suffix === '/#sort=title') {
             setSort("title");
+            fetchPublicMemesSortByTitle();
         }
     }, [])
 
@@ -49,14 +45,17 @@ function Overview() {
 
     const handleDefault = () => {
         setSort("default");
+        fetchPublicMemesSortByDefault();
     }
 
     const handleLatest = () => {
        setSort("latest");
+       fetchPublicMemesSortByDate();
     }
 
     const handleTitle = () => {
         setSort("title");
+        fetchPublicMemesSortByTitle();
     }
 
     const Meme = ({meme}) => {
@@ -92,6 +91,33 @@ function Overview() {
     //     }
     // });
 
+    const fetchPublicMemesSortByDefault = () => {
+        fetch("http://localhost:3002/memes/get-public-memes")
+            .then((res) => res.json())
+            .then((data) => {
+                setData(data);
+                console.log(data, "getMeme");
+            });
+    }
+
+    const fetchPublicMemesSortByDate = () => {
+        fetch("http://localhost:3002/memes/get-public-memes-sort-by-date")
+            .then((res) => res.json())
+            .then((data) => {
+                setData(data);
+                console.log(data, "getMeme");
+            });
+    }
+
+    const fetchPublicMemesSortByTitle = () => {
+        fetch("http://localhost:3002/memes/get-public-memes-sort-by-title")
+            .then((res) => res.json())
+            .then((data) => {
+                setData(data);
+                console.log(data, "getMeme");
+            });
+    }
+
     return (
         <div>
             <Navbar className="top">
@@ -110,23 +136,19 @@ function Overview() {
                 </Container>
             </Navbar>
 
-            {sort === "default" && data && data.map(meme => meme.permission === "public" &&
+            {sort === "default" && data && data.map(meme =>
                 <Meme key={meme.url}
                       meme={meme}
                 />
             )}
 
-            {sort === "latest" && data && data.sort(function (a, b) {
-                return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
-            }) && data.map(meme => meme.permission === "public" &&
+            {sort === "latest" && data && data.map(meme =>
                 <Meme key={meme.url}
                       meme={meme}
                 />
             )}
 
-            {sort === "title" && data && data.sort( function (a, b) {
-                return a.title < b.title ? -1 : a.title > b.title ? 1 : 0;
-            }) && data.map(meme => meme.permission === "public" &&
+            {sort === "title" && data && data.map(meme =>
                 <Meme key={meme.url}
                       meme={meme}
                 />
