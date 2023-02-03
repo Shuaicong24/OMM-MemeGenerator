@@ -11,6 +11,5 @@ react-backend:
 
 react-frontend:
 1. react-router-dom - navigation
-2. react-input-multiline - input multiline
-3. react-bootstrap - navbar
-4. file-saver - download
+2. react-bootstrap - navbar
+3. file-saver - download

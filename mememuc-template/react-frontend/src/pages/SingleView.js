@@ -1,14 +1,14 @@
 /**
  * References:
- * https://www.npmjs.com/package/react-input-multiline
+ * https://www.pluralsight.com/guides/how-to-use-multiline-text-area-in-reactjs
  * https://medium.com/@s.alexis/using-react-router-useparams-to-fetch-data-dynamically-13288e24ed1
  * */
 
 import React, {useEffect, useState} from 'react';
 import '../styles/singleview.css';
-import {MultilineInput} from 'react-input-multiline';
 import {useParams} from 'react-router-dom';
 import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 
 function SingleView() {
     // localhost:3000/m/:id
@@ -17,6 +17,9 @@ function SingleView() {
     const [publicData, setPublicData] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [currentIndex, setCurrentIndex] = useState(-1);
+
+    const [showLogin, setShowLogin] = useState(false);
+
 
     useEffect(() => {
         fetchAllData();
@@ -128,6 +131,25 @@ function SingleView() {
         setCurrentIndex(index);
     }
 
+    const handleCheckLogin = () => {
+        if (localStorage.getItem("logStatus") === 'notLogged') {
+            setShowLogin(true);
+        }
+    }
+    const handleComment = (e) => {
+
+        const comment = document.getElementById('comment');
+       // setInputValue('ssd');
+       //  if (localStorage.getItem("logStatus") === 'notLogged') {
+       //      e.target.value = '';
+       //      setShowLogin(true);
+       //  }
+    }
+
+    const handleCloseLogin = () => {
+        setShowLogin(false);
+    }
+
     const Meme = ({meme}) => {
         return (
             <div>
@@ -135,38 +157,58 @@ function SingleView() {
 
                 <div><img className='img' src={meme.img} alt="Generic placeholder image"/></div>
                 <Button className="button" onClick={handleLeft}>
-                    left
+                    Left
                 </Button>
                 <Button className="button" onClick={handleRight}>
-                    right
+                    Right
                 </Button>
                 <Button className="button" onClick={handleRandom}>
-                    random
+                    Random
                 </Button>
-                <div className='comment_block'>
-                    <div className='comment'>
-                        <MultilineInput
-                            placeholder={'Please comment here...'}
-                            value={inputValue}
-                            id='comment'
-                            onChange={(e) => setInputValue(e.target.value)}
-                        />
-                    </div>
-                    <Button className="btn_comment">
-                        post comment
-                    </Button>
-                </div>
             </div>
         );
+    }
+
+    const handelPostComment = () => {
+
     }
 
     return (
         <div>
             {data && data.map(meme =>
                 meme.url === `http://localhost:3000/m/${id}` &&
-                <Meme key={meme.toString()}
+                <Meme key={meme.url}
                       meme={meme}/>
             )}
+            {data && data.map(meme =>
+                meme.url === `http://localhost:3000/m/${id}` &&
+                <div className='comment_block' key={meme.url}>
+                    <textarea className='comment'
+                            placeholder={'Please comment here...'}
+                            id={meme.url}
+                            onClick={handleCheckLogin}
+                            onChange={handleComment}
+                    />
+                    <Button className="btn_comment" onClick={handelPostComment}>
+                        Post comment
+                    </Button>
+
+                </div>
+            )}
+
+            <Modal show={showLogin} onHide={handleCloseLogin}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Login</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    You are only allowed to comment when you're logged in!
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" href="/sign-in">
+                        Login
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     )
 }
