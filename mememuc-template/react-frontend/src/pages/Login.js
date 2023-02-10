@@ -2,24 +2,25 @@
  * References:
  * https://www.youtube.com/watch?v=6oTDAyuQ5iw
  * https://github.com/the-debug-arena/login-registration/blob/main/src/components/login_component.js
+ *
+ * Login by Google:
+ * https://blog.logrocket.com/guide-adding-google-login-react-app/#acquiring-google-client-id-project
+ * The source of Google icon is the src of <img> tag
  * */
 
-import React from "react";
+import React, {useState, useEffect} from "react";
 import "../styles/form.css";
+import {googleLogout, useGoogleLogin} from '@react-oauth/google';
+import axios from 'axios';
 
-class Login extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            username: "",
-            password: "",
-        };
-        this.handleSubmit = this.handleSubmit.bind(this);
-    }
+function Login() {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [user, setUser] = useState([]);
+    const [profile, setProfile] = useState([]);
 
-    handleSubmit(e) {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        const {username, password} = this.state;
         console.log(username, password);
         fetch("http://localhost:3002/users/login-user", {
             method: "POST",
@@ -49,44 +50,88 @@ class Login extends React.Component {
             });
     }
 
-    render() {
-        return (
-            <form className="form" onSubmit={this.handleSubmit}>
-                <h3>Sign In</h3>
+    const login = useGoogleLogin({
+        onSuccess: (response) => setUser(response),
+        onError: (error) => console.log('Login Failed:', error)
+    });
 
-                <div className="mb-3">
-                    <label>Username</label>
-                    <input
-                        type="text"
-                        className="form-control"
-                        placeholder="Username"
-                        onChange={(e) => this.setState({username: e.target.value})}
-                    />
+    const logOut = () => {
+        googleLogout();
+        setProfile(null);
+    };
+
+    useEffect(
+        () => {
+            if (user) {
+                axios
+                    .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`, {
+                        headers: {
+                            Authorization: `Bearer ${user.access_token}`,
+                            Accept: 'application/json'
+                        }
+                    })
+                    .then((res) => {
+                        setProfile(res.data);
+                    })
+                    .catch((err) => console.log(err));
+            }
+        },
+        [user]
+    );
+
+    return (
+        <form className="form" onSubmit={handleSubmit}>
+            <h3>Sign In</h3>
+
+            <div className="mb-3">
+                <label>Username</label>
+                <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Username"
+                    onChange={(e) => setUsername(e.target.value)}
+                />
+            </div>
+
+            <div className="mb-3">
+                <label>Password</label>
+                <input
+                    type="password"
+                    className="form-control"
+                    placeholder="Enter password"
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+            </div>
+
+            <div className="d-grid">
+                <button type="submit" className="btn btn-primary">
+                    Submit
+                </button>
+            </div>
+
+            <p className="forgot-password text-right">
+                New here <a href="/sign-up">sign up!</a>
+            </p>
+            <p>Or use a third-party to log in!</p>
+
+            {profile ? (
+                <div>
+                    <img src={profile.picture} alt="user image"/>
+                    <h3>User Logged in</h3>
+                    <p>Name: {profile.name}</p>
+                    <p>Email Address: {profile.email}</p>
+                    <br/>
+                    <br/>
+                    <button onClick={logOut}>Log out</button>
                 </div>
+            ) : (
+                <button onClick={() => login()}><img src="https://img.icons8.com/color/25/null/google-logo.png"
+                                                     alt={"google"}/></button>
+            )}
 
-                <div className="mb-3">
-                    <label>Password</label>
-                    <input
-                        type="password"
-                        className="form-control"
-                        placeholder="Enter password"
-                        onChange={(e) => this.setState({password: e.target.value})}
-                    />
-                </div>
+        </form>
+    );
 
-                <div className="d-grid">
-                    <button type="submit" className="btn btn-primary">
-                        Submit
-                    </button>
-                </div>
-
-                <p className="forgot-password text-right">
-                    New here <a href="/sign-up">sign up!</a>
-                </p>
-
-            </form>
-        );
-    }
 }
 
 export default Login;
