@@ -16,8 +16,6 @@ import axios from 'axios';
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [user, setUser] = useState([]);
-    const [profile, setProfile] = useState([]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -51,33 +49,25 @@ function Login() {
     }
 
     const login = useGoogleLogin({
-        onSuccess: (response) => setUser(response),
+        onSuccess: (response) => {
+            alert("Login successful");
+            axios
+                .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${response.access_token}`, {
+                    headers: {
+                        Authorization: `Bearer ${response.access_token}`,
+                        Accept: 'application/json'
+                    }
+                })
+                .then((res) => {
+                    const profile = res.data;
+                    window.localStorage.setItem("logStatus", "logged");
+                    window.localStorage.setItem("loggedUsername", profile.name);
+                    window.location.href = "/";
+                })
+                .catch((err) => console.log(err));
+        },
         onError: (error) => console.log('Login Failed:', error)
     });
-
-    const logOut = () => {
-        googleLogout();
-        setProfile(null);
-    };
-
-    useEffect(
-        () => {
-            if (user) {
-                axios
-                    .get(`https://www.googleapis.com/oauth2/v1/userinfo?access_token=${user.access_token}`, {
-                        headers: {
-                            Authorization: `Bearer ${user.access_token}`,
-                            Accept: 'application/json'
-                        }
-                    })
-                    .then((res) => {
-                        setProfile(res.data);
-                    })
-                    .catch((err) => console.log(err));
-            }
-        },
-        [user]
-    );
 
     return (
         <form className="form" onSubmit={handleSubmit}>
@@ -112,23 +102,10 @@ function Login() {
             <p className="forgot-password text-right">
                 New here <a href="/sign-up">sign up!</a>
             </p>
+
             <p>Or use a third-party to log in!</p>
-
-            {profile ? (
-                <div>
-                    <img src={profile.picture} alt="user image"/>
-                    <h3>User Logged in</h3>
-                    <p>Name: {profile.name}</p>
-                    <p>Email Address: {profile.email}</p>
-                    <br/>
-                    <br/>
-                    <button onClick={logOut}>Log out</button>
-                </div>
-            ) : (
-                <button onClick={() => login()}><img src="https://img.icons8.com/color/25/null/google-logo.png"
-                                                     alt={"google"}/></button>
-            )}
-
+            <img src="https://img.icons8.com/color/25/null/google-logo.png"
+                                                     alt={"google"} onClick={login}/>
         </form>
     );
 
