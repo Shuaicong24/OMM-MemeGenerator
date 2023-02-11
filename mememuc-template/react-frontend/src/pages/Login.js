@@ -105,7 +105,7 @@ function Login() {
 
             <p>Or use a third-party to log in!</p>
             <img src="https://img.icons8.com/color/25/null/google-logo.png"
-                                                     alt={"google"} onClick={login}/>
+                 alt={"google"} onClick={login}/>
         </form>
     );
 
