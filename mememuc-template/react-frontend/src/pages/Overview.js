@@ -36,6 +36,9 @@ function Overview() {
         } else if (suffix === '/#sort=title') {
             setSort("title");
             fetchPublicMemesSortByTitle();
+        } else if (suffix === '/#sort=latest-1d') {
+            setSort("latest-one-day");
+            fetchPublicMemesSortByDateInOneDay();
         }
     }, [])
 
@@ -57,6 +60,12 @@ function Overview() {
         setSort("title");
         fetchPublicMemesSortByTitle();
     }
+    
+    const handleLatestOneDay = () => {
+        setSort("latest-one-day");
+        fetchPublicMemesSortByDateInOneDay();
+    }
+
 
     const Meme = ({meme}) => {
         return (
@@ -117,7 +126,14 @@ function Overview() {
                 console.log(data, "getMeme");
             });
     }
-
+    const fetchPublicMemesSortByDateInOneDay = () => {
+        fetch("http://localhost:3002/memes/get-public-memes-sort-by-date-in-one-day")
+            .then((res) => res.json())
+            .then((data) => {
+                setData(data);
+                console.log(data, "getMeme");
+            });
+    }
     return (
         <div>
             <Navbar className="top">
@@ -131,6 +147,7 @@ function Overview() {
                             menuVariant="light">
                             <NavDropdown.Item href="/#sort=votes">Votes</NavDropdown.Item>
                             <NavDropdown.Item href="/#sort=views">Views</NavDropdown.Item>
+                            <NavDropdown.Item href="/#sort=latest-1d" onClick={handleLatestOneDay}>New <span style={{'fontSize': '13px'}}>past 24h</span></NavDropdown.Item>
                         </NavDropdown>
                     </Nav>
                 </Container>
@@ -149,6 +166,12 @@ function Overview() {
             )}
 
             {sort === "title" && data && data.map(meme =>
+                <Meme key={meme.url}
+                      meme={meme}
+                />
+            )}
+
+            {sort === "latest-one-day" && data && data.map(meme =>
                 <Meme key={meme.url}
                       meme={meme}
                 />

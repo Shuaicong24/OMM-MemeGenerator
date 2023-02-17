@@ -7,6 +7,7 @@
  * Query:
  * https://codesandbox.io/s/requests-yctc5?file=/src/index.js
  * https://www.youtube.com/watch?v=-NBNF2yURm8
+ * https://www.mongodb.com/docs/manual/reference/operator/query/gt/
  *
  * */
 
@@ -14,6 +15,7 @@ var express = require("express");
 var router = express.Router();
 const fs = require("fs");
 const multer = require("multer");
+const ONE_DAY_MILLISECS = 1000 * 60 * 60 * 24;
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -100,6 +102,17 @@ router.get("/get-public-memes-sort-by-title", async function (req, res) {
     memeModel.find({permission: 'public'}).sort({title: 1})
         .then((data) => {
             console.log('Data after sorting by title: ', data);
+            res.send(data);
+        })
+        .catch((error) => {
+            res.status(500).send(error);
+        });
+});
+
+router.get("/get-public-memes-sort-by-date-in-one-day", async function (req, res) {
+    memeModel.find({permission: 'public', date: { $gt: Date.now() - ONE_DAY_MILLISECS }}).sort({date: -1})
+        .then((data) => {
+            console.log('Data after sorting by date in a day: ', data);
             res.send(data);
         })
         .catch((error) => {
