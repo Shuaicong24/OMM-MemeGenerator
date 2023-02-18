@@ -25,6 +25,11 @@
  * https://medium.com/@s.alexis/using-react-router-useparams-to-fetch-data-dynamically-13288e24ed1
  * The idea that adding an image does not change the current image on the canvas, i.e. continuously append pictures, using an array:
  * help from Xueru Zheng, Group 070
+ * $ identifier:
+ * https://intellij-support.jetbrains.com/hc/en-us/community/posts/360002260719--jQuery-shortcut-underlined-as-unresolved-function-or-method-
+ * Upload by provided image URL:
+ * https://codepen.io/kallil-belmonte/pen/KKKRoyx
+ * https://www.w3schools.com/jsref/prop_style_bordercolor.asp
  * */
 
 import React, {useEffect, useRef, useState} from "react";
@@ -71,6 +76,17 @@ function MemeMaker() {
     const [addedImages, setAddedImages] = useState([]);
 
     const [uploadURL, setUploadURL] = useState('');
+    const texts = [];
+
+    // const canvas = $("#canvas");
+    // const canvasOffset = canvas.offset();
+    // const offsetX = canvasOffset.left;
+    // const offsetY = canvasOffset.top;
+    // const scrollX = canvas.scrollLeft();
+    // const scrollY = canvas.scrollTop();
+    var startX;
+    var startY;
+    var selectedText = -1;
 
     const handleCloseUpload = () => {
         setShowUpload(false);
@@ -80,20 +96,26 @@ function MemeMaker() {
     const handleShowUpload = () => {
         setShowUpload(true);
         setImage(null);
+        setUploadURL('');
     };
 
     const handleUpload = () => {
-        const memeImage = new Image();
-        setShowUpload(false);
-        setTemplate(null);
-        setImage(image);
-        memeImage.crossOrigin = "anonymous"
-        memeImage.src = image.toString();
-        setMeme(memeImage);
-        setCaption(filename);
-        setTitle('');
-        setAdded(false);
-        setAddedImages([]);
+        if (image != null) {
+            const memeImage = new Image();
+            setShowUpload(false);
+            setTemplate(null);
+            //setImage(image);
+            memeImage.crossOrigin = "anonymous"
+            memeImage.src = image.toString();
+            setMeme(memeImage);
+            setCaption(filename);
+            setTitle('');
+            setAdded(false);
+            setAddedImages([]);
+        } else {
+            alert('Invalid image URL!');
+        }
+
     };
 
     const handleCloseGenerate = () => {
@@ -248,14 +270,59 @@ function MemeMaker() {
             ctx.fillStyle = "green";
             ctx.textAlign = "center";
 
-            ctx.fillText(topText, (myCanvas.width / 2), 100, myCanvas.width);
-            ctx.fillText(bottomText, (myCanvas.width / 2), myCanvas.height - 100, myCanvas.width);
+            // const canvasOffset = myCanvas.offset();
+            // const offsetX = canvasOffset.left;
+            // const offsetY = canvasOffset.top;
+            // const scrollX = myCanvas.scrollLeft();
+            // const scrollY = myCanvas.scrollTop();
+
+            texts.push({text: topText, x: (myCanvas.width / 2), y: 100});
+            texts.push({text: bottomText, x: (myCanvas.width / 2), y: myCanvas.height - 100});
+
+            for (let i = 0; i < texts.length; i++) {
+                const text = texts[i];
+                ctx.fillText(text.text, text.x, text.y, myCanvas.width);
+                ctx.fill();
+
+            }
+            // ctx.fillText(topText, (myCanvas.width / 2), 100, myCanvas.width);
+            // ctx.fillText(bottomText, (myCanvas.width / 2), myCanvas.height - 100, myCanvas.width);
 
         } else {
             myCanvas.width = 0;
             myCanvas.height = 0;
         }
     }
+
+    function textHitTest(x, y, textIndex) {
+        const text = texts[textIndex];
+        return (x >= text.x && x <= text.x + text.width && y >= text.y - text.height && y <= text.y);
+    }
+
+    // function handleMouseDown(e) {
+    //     e.preventDefault();
+    //     startX = parseInt((e.clientX - offsetX).toString());
+    //     startY = parseInt((e.clientY - offsetY).toString());
+    //
+    //     // Put your mousedown stuff here
+    //     for (var i = 0; i < texts.length; i++) {
+    //         if (textHitTest(startX, startY, i)) {
+    //             $('#canvas').css('cursor','pointer');
+    //             selectedText = i;
+    //         }
+    //     }
+    // }
+    //
+    // function handleMouseUp(e) {
+    //     e.preventDefault();
+    //     selectedText = -1;
+    //     $('#canvas').css('cursor','auto');
+    // }
+
+    // function handleMouseOut(e) {
+    //     e.preventDefault();
+    //     selectedText = -1;
+    // }
 
     const alignImage = (myCanvas, imgUrl, pos) => {
         const addedImage = new Image();
@@ -294,28 +361,20 @@ function MemeMaker() {
 
         setFilename(targetName);
     };
-    
+
     const onImageChangeByURL = e => {
-        setUploadURL(e.target.value);
+        const url = e.target.value;
+        setUploadURL(url);
 
-        console.log(e.target.value);
-        fetch(e.target.value, {
-            method: "GET",
-            crossDomain: true,
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "Access-Control-Allow-Origin": "*",
-            },
-        }).then(x =>
-            x.json().then(response => {
-                   console.log(response, 'response');
-                }
-            )).catch((error) => {
-            console.log('Error: ', error);
-            alert('Failed to fetch image from url. Check if the URL is correct.');
+        checkIfImageExists(url, (exists) => {
+            if (exists) {
+                setImage(url);
+                setFilename(url.substring(url.toString().length - 5));
+            } else {
+                document.getElementById('image-url').style.borderColor = 'red';
+                setImage(null);
+            }
         });
-
     }
 
     function clear() {
@@ -369,6 +428,23 @@ function MemeMaker() {
             imgUrl: imgUrl,
             pos: pos
         });
+    }
+
+    function checkIfImageExists(url, callback) {
+        const img = new Image();
+        img.src = url;
+
+        if (img.complete) {
+            callback(true);
+        } else {
+            img.onload = () => {
+                callback(true);
+            };
+
+            img.onerror = () => {
+                callback(false);
+            };
+        }
     }
 
     return (
@@ -475,12 +551,13 @@ function MemeMaker() {
                 </Modal.Header>
                 <Modal.Body>
                     <input type="file" onChange={onImageChangeByFile}/>
-                    {/*<p className="center-p">OR</p>*/}
-                    {/*<input*/}
-                    {/*    type="text" className="upload-url"*/}
-                    {/*    placeholder="Paste an image URL"*/}
-                    {/*    value={uploadURL}*/}
-                    {/*    onChange={onImageChangeByURL} />*/}
+                    <p className="center-p">OR</p>
+                    <input
+                        id="image-url"
+                        type="text" className="upload-url"
+                        placeholder="Paste an image URL"
+                        value={uploadURL}
+                        onChange={onImageChangeByURL}/>
                     {/*<p className="center-p">OR</p>*/}
                     {/*<Button>Click to draw a template</Button>*/}
                     <div>
