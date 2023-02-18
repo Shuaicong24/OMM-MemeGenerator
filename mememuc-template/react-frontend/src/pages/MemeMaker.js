@@ -608,6 +608,7 @@ function MemeMaker() {
                         className="draw-canvas"
                         brushColor={"black"}
                         brushRadius={3}
+                        gridColor={"rgba(0,0,0,0.5)"}
                     />
                 </Modal.Body>
                 <Modal.Footer>
