@@ -15,3 +15,4 @@ react-frontend:
 3. file-saver - download
 4. @react-oauth/google - google authentication
 5. axios - handle requests
+6. react-canvas-draw - draw on canvas

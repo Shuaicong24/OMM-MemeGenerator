@@ -33,8 +33,9 @@
  * Upload by drawing:
  * https://www.npmjs.com/package/react-canvas-draw
  * https://codesandbox.io/s/react-canvas-draw-example-forked-5vkkxo?file=/src/index.js:932-1094
- *
- *
+ * Make texts on canvas movable:
+ * https://www.w3schools.com/tags/canvas_measuretext.asp
+ * https://erikonarheim.com/posts/canvas-text-metrics/
  * */
 
 import React, {useEffect, useRef, useState} from "react";
@@ -82,19 +83,14 @@ function MemeMaker() {
     const [addedImages, setAddedImages] = useState([]);
 
     const [uploadURL, setUploadURL] = useState('');
-    const texts = [];
     const [showDraw, setShowDraw] = useState(false);
-
-    // const canvas = $("#canvas");
-    // const canvasOffset = canvas.offset();
-    // const offsetX = canvasOffset.left;
-    // const offsetY = canvasOffset.top;
-    // const scrollX = canvas.scrollLeft();
-    // const scrollY = canvas.scrollTop();
-    var startX;
-    var startY;
-    var selectedText = -1;
     const canvasDrawRef = useRef(null);
+
+    const texts = [];
+    let current_text_index = null;
+
+    var startX, startY;
+    var selectedText = -1;
 
     const handleCloseDraw = () => {
         setShowDraw(false);
@@ -243,6 +239,39 @@ function MemeMaker() {
         setTitle('');
     }
 
+    function isMouseInText(x, y, text) {
+        let text_left = text.x;
+        let text_right = text.x + text.width;
+        let text_top = text.y;
+        let text_bottom = text.y + text.height;
+        console.log(`text_left: ${text_left}, text_right: ${text_right},
+        text_top: ${text_top}, text_bottom: ${text_bottom}`);
+
+        return x > text_left && x < text_right && y > text_top && y < text_bottom;
+    }
+
+    let mouseDown = function (event) {
+        event.preventDefault();
+        console.log(event);
+        let startX = parseInt(event.clientX - event.offsetX);
+        let startY = parseInt(event.offsetY - event.offsetY);
+
+
+        let index = 0;
+        for (let text of texts) {
+            console.log(`x: ${text.x}, y: ${text.y}, width: ${text.width}, height: ${text.height}`);
+            if (isMouseInText(startX, startY, text)) {
+                console.log('yes');
+                current_text_index = index;
+            } else {
+                console.log('no');
+            }
+            index++;
+        }
+
+
+    }
+
     function draw(canvas) {
         const myCanvas = canvasRef.current;
 
@@ -253,7 +282,7 @@ function MemeMaker() {
 
             const ctx = canvas.current.getContext("2d");
             ctx.fillStyle = "white";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+           // ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(meme, 0, 0, myCanvas.width, myCanvas.height);
 
             // store previous status of canvas
@@ -296,21 +325,25 @@ function MemeMaker() {
             ctx.fillStyle = "green";
             ctx.textAlign = "center";
 
-            // const canvasOffset = myCanvas.offset();
-            // const offsetX = canvasOffset.left;
-            // const offsetY = canvasOffset.top;
-            // const scrollX = myCanvas.scrollLeft();
-            // const scrollY = myCanvas.scrollTop();
+            console.log('widdasd: ', ctx.measureText(topText).width);
+            const top_metrics = ctx.measureText(topText);
+            const top_height = Math.abs(top_metrics.actualBoundingBoxAscent) + Math.abs(top_metrics.actualBoundingBoxDescent);
+            const bottom_metrics = ctx.measureText(bottomText);
+            const bottom_height = Math.abs(bottom_metrics.actualBoundingBoxAscent) + Math.abs(bottom_metrics.actualBoundingBoxDescent);
 
-            texts.push({text: topText, x: (myCanvas.width / 2), y: 100});
-            texts.push({text: bottomText, x: (myCanvas.width / 2), y: myCanvas.height - 100});
+            texts.push({text: topText, x: (myCanvas.width / 2), y: 100});//, width: ctx.measureText(topText).width, height: top_height});
+            texts.push({text: bottomText, x: (myCanvas.width / 2), y: myCanvas.height - 100});//, width: ctx.measureText(bottomText).width, height: bottom_height});
 
+            console.log(`half canvas width: ${(myCanvas.width / 2)}`)
             for (let i = 0; i < texts.length; i++) {
                 const text = texts[i];
+                text.width = ctx.measureText(text.text).width;
+                text.height = 60;
                 ctx.fillText(text.text, text.x, text.y, myCanvas.width);
                 ctx.fill();
-
             }
+
+            myCanvas.onmousedown = handleMouseDown;
             // ctx.fillText(topText, (myCanvas.width / 2), 100, myCanvas.width);
             // ctx.fillText(bottomText, (myCanvas.width / 2), myCanvas.height - 100, myCanvas.width);
 
@@ -320,35 +353,53 @@ function MemeMaker() {
         }
     }
 
+
     function textHitTest(x, y, textIndex) {
         const text = texts[textIndex];
+        console.log(`XOUTPUT: ${x}, ${text.x}, ${text.x+text.width}`);
+
+        console.log(`YOUTPUT:${y}, ${text.y - text.height}, ${text.y}`);
         return (x >= text.x && x <= text.x + text.width && y >= text.y - text.height && y <= text.y);
     }
 
-    // function handleMouseDown(e) {
-    //     e.preventDefault();
-    //     startX = parseInt((e.clientX - offsetX).toString());
-    //     startY = parseInt((e.clientY - offsetY).toString());
-    //
-    //     // Put your mousedown stuff here
-    //     for (var i = 0; i < texts.length; i++) {
-    //         if (textHitTest(startX, startY, i)) {
-    //             $('#canvas').css('cursor','pointer');
-    //             selectedText = i;
-    //         }
-    //     }
-    // }
-    //
-    // function handleMouseUp(e) {
-    //     e.preventDefault();
-    //     selectedText = -1;
-    //     $('#canvas').css('cursor','auto');
-    // }
+    function handleMouseDown(e) {
+        e.preventDefault();
+        startX = parseInt(e.clientX - canvasRef.current.offsetLeft);
+        startY = parseInt(e.clientY - canvasRef.current.offsetTop);
 
-    // function handleMouseOut(e) {
-    //     e.preventDefault();
-    //     selectedText = -1;
-    // }
+        // Put your mousedown stuff here
+        for (var i = 0; i < texts.length; i++) {
+            if (textHitTest(startX, startY, i)) {
+                const canvas = canvasRef.current;
+                canvas.setAttribute('cursor','pointer');
+                selectedText = i;
+            } else {
+                alert('dfs');
+            }
+        }
+    }
+
+    function handleMouseMove(e) {
+        if (selectedText < 0) {
+            return;
+        }
+        e.preventDefault();
+        const mouseX = parseInt(e.clientX - e.offsetX);
+        const mouseY = parseInt(e.clientY - e.offsetY);
+
+        // Put your mousemove stuff here
+        var dx = mouseX - startX;
+        var dy = mouseY - startY;
+        startX = mouseX;
+        startY = mouseY;
+
+        var text = texts[selectedText];
+        text.x += dx;
+        text.y += dy;
+        draw(canvasRef);
+    }
+
+
 
     const alignImage = (myCanvas, imgUrl, pos) => {
         const addedImage = new Image();
