@@ -30,6 +30,11 @@
  * Upload by provided image URL:
  * https://codepen.io/kallil-belmonte/pen/KKKRoyx
  * https://www.w3schools.com/jsref/prop_style_bordercolor.asp
+ * Upload by drawing:
+ * https://www.npmjs.com/package/react-canvas-draw
+ * https://codesandbox.io/s/react-canvas-draw-example-forked-5vkkxo?file=/src/index.js:932-1094
+ *
+ *
  * */
 
 import React, {useEffect, useRef, useState} from "react";
@@ -38,6 +43,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import {saveAs} from 'file-saver';
 import {Link} from 'react-router-dom';
+import CanvasDraw from "react-canvas-draw";
 
 const LINK_MEME_PREFIX = 'http://localhost:3000/m/';
 
@@ -77,6 +83,7 @@ function MemeMaker() {
 
     const [uploadURL, setUploadURL] = useState('');
     const texts = [];
+    const [showDraw, setShowDraw] = useState(false);
 
     // const canvas = $("#canvas");
     // const canvasOffset = canvas.offset();
@@ -87,6 +94,20 @@ function MemeMaker() {
     var startX;
     var startY;
     var selectedText = -1;
+    const canvasDrawRef = useRef(null);
+
+    const handleCloseDraw = () => {
+        setShowDraw(false);
+        setImage(null);
+    }
+
+    const handleConfirmDraw = () => {
+        const canvas = canvasDrawRef.current;
+        const data = canvas.getDataURL();
+        setImage(data);
+        setShowDraw(false);
+        setFilename('drawing');
+    }
 
     const handleCloseUpload = () => {
         setShowUpload(false);
@@ -98,6 +119,11 @@ function MemeMaker() {
         setImage(null);
         setUploadURL('');
     };
+
+    const handleShowDraw = () => {
+        setShowDraw(true);
+        setImage(null);
+    }
 
     const handleUpload = () => {
         if (image != null) {
@@ -487,7 +513,7 @@ function MemeMaker() {
                             <div className="options">
                                 <Button type="submit" onClick={handleAddImage}>Add image</Button>
                             </div>
-                            <canvas id="meme-canvas" ref={canvasRef} width="0" height="0">
+                            <canvas id="meme-canvas" className="meme-canvas" ref={canvasRef} width="0" height="0">
                                 {meme && draw(canvasRef)}
                             </canvas>
                             <p>{caption}</p>
@@ -558,18 +584,35 @@ function MemeMaker() {
                         placeholder="Paste an image URL"
                         value={uploadURL}
                         onChange={onImageChangeByURL}/>
-                    {/*<p className="center-p">OR</p>*/}
-                    {/*<Button>Click to draw a template</Button>*/}
+                    <p className="center-p">OR</p>
+                    <Button onClick={handleShowDraw}>Click to draw a template</Button>
                     <div>
                         {image && <img id="thumbnail" className="thumbnail" src={image} alt={"image"}/>}
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseUpload}>
-                        Close
-                    </Button>
                     <Button variant="primary" onClick={handleUpload}>
                         Upload
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showDraw} onHide={handleCloseDraw}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Draw a template</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <CanvasDraw
+                        ref={canvasDrawRef}
+                        id="canvas-draw"
+                        className="draw-canvas"
+                        brushColor={"black"}
+                        brushRadius={3}
+                    />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" onClick={handleConfirmDraw}>
+                        Confirm
                     </Button>
                 </Modal.Footer>
             </Modal>

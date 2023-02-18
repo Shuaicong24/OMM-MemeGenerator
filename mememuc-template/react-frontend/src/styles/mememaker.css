@@ -4,7 +4,7 @@
     margin: 5px;
 }
 
-canvas {
+.meme-canvas {
     margin-top: 10px;
     width: 90%;
     display: inline;
@@ -67,4 +67,8 @@ input {
 
 .upload-url {
     width: 100%;
+}
+
+.draw-canvas {
+    margin: 5px;
 }
