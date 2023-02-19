@@ -72,3 +72,15 @@ input {
 .draw-canvas {
     margin: 5px;
 }
+
+.text-area {
+    display: flex;
+}
+
+.color-picker {
+    background-color: black;
+    margin-top: 2px;
+    width: 30px;
+    height: 30px;
+    border-radius: 2px;
+}

@@ -36,6 +36,11 @@
  * https://erikonarheim.com/posts/canvas-text-metrics/
  * https://stackoverflow.com/questions/4032179/how-do-i-get-the-width-and-height-of-a-html5-canvas
  * https://stackoverflow.com/questions/1134586/how-can-you-find-the-height-of-text-on-an-html-canvas
+ * Change font size and color:
+ * https://uiwjs.github.io/react-color/#/chrome
+ * https://www.npmjs.com/package/reactjs-popup
+ * https://stackoverflow.com/questions/18092753/change-font-size-of-canvas-without-knowing-font-family
+ * https://stackoverflow.com/questions/1874560/how-to-use-javascript-to-change-div-backgroundcolor
  * */
 
 import React, {useEffect, useRef, useState} from "react";
@@ -45,6 +50,10 @@ import Modal from 'react-bootstrap/Modal';
 import {saveAs} from 'file-saver';
 import {Link} from 'react-router-dom';
 import CanvasDraw from "react-canvas-draw";
+import Chrome from '@uiw/react-color-chrome';
+import {GithubPlacement} from '@uiw/react-color-github';
+import Popup from 'reactjs-popup';
+
 
 const LINK_MEME_PREFIX = 'http://localhost:3000/m/';
 
@@ -64,7 +73,9 @@ function MemeMaker() {
     const [template, setTemplate] = useState(null);
     const [title, setTitle] = useState('');
     const [topText, setTopText] = useState('');
+    const [topTextSize, setTopTextSize] = useState('50');
     const [bottomText, setBottomText] = useState('');
+    const [bottomTextSize, setBottomTextSize] = useState('50');
     const [image, setImage] = useState(null);
     const [showUpload, setShowUpload] = useState(false);
     const canvasRef = useRef(null);
@@ -91,6 +102,10 @@ function MemeMaker() {
 
     let startX, startY;
     let selectedText = -1;
+
+    const [hexTop, setHexTop] = useState("#000000");
+    const [hexBottom, setHexBottom] = useState("#000000");
+
 
     const handleCloseDraw = () => {
         setShowDraw(false);
@@ -289,7 +304,8 @@ function MemeMaker() {
                 }
             }
 
-            ctx.font = "60px Comic Sans MS";
+
+            ctx.font = "50px Comic Sans MS";
             ctx.fillStyle = "green";
             ctx.textAlign = "center";
 
@@ -302,6 +318,16 @@ function MemeMaker() {
 
             for (let i = 0; i < texts.length; i++) {
                 const text = texts[i];
+                const match = /(?<value>\d+\.?\d*)/;
+
+                if (i === 0) {
+                    ctx.font = ctx.font.replace(match, topTextSize);
+                    ctx.fillStyle = hexTop;
+                }
+                if (i === 1) {
+                    ctx.font = ctx.font.replace(match, bottomTextSize);
+                    ctx.fillStyle = hexBottom;
+                }
                 text.width = ctx.measureText(text.text).width;
                 const metrics = ctx.measureText(text.text);
                 text.height = Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
@@ -503,6 +529,38 @@ function MemeMaker() {
         }
     }
 
+    function handleTopTextSizeChange(e) {
+        if (e.target.value > 100) {
+            setTopTextSize("100");
+        } else if (e.target.value < 1) {
+            setTopTextSize("1");
+        } else {
+            setTopTextSize(e.target.value)
+        }
+    }
+
+    function handleBottomTextSizeChange(e) {
+        if (e.target.value > 100) {
+            setBottomTextSize("100");
+        } else if (e.target.value < 1) {
+            setBottomTextSize("1");
+        } else {
+            setBottomTextSize(e.target.value)
+        }
+    }
+
+    const handleTopTextColorChange = (color) => {
+        const topTextColorDiv = document.getElementById('top-text-color');
+        setHexTop(color.hexa);
+        topTextColorDiv.style.backgroundColor = color.hexa;
+    }
+
+    const handleBottomTextColorChange = (color) => {
+        const bottomTextColorDiv = document.getElementById('bottom-text-color');
+        setHexBottom(color.hexa);
+        bottomTextColorDiv.style.backgroundColor = color.hexa;
+    }
+
     return (
         <div>
             <div className="template-area">
@@ -545,7 +603,6 @@ function MemeMaker() {
                             </div>
                             <canvas id="meme-canvas" className="meme-canvas" ref={canvasRef} width="0" height="0">
                                 {meme && draw(canvasRef)}
-                                <div id="top-text">{topText}</div>
                             </canvas>
                             <p>{caption}</p>
                             <br/>
@@ -558,20 +615,54 @@ function MemeMaker() {
                                 value={title}
                                 onChange={e => setTitle(e.target.value)}
                             />
-                            <br/>
+                            <div className="text-area">
+                                <input
+                                    placeholder="top text"
+                                    value={topText}
+                                    onChange={e => setTopText(e.target.value)}
+                                />
+                                <Popup trigger={<div id="top-text-color" className="color-picker"/>} position="bottom center">
+                                    <div> <Chrome
+                                        color={hexTop}
+                                        style={{ float: 'left' }}
+                                        placement={GithubPlacement.Right}
+                                        onChange={handleTopTextColorChange}
+                                    /></div>
+                                </Popup>
+                            </div>
+                            Max font size (px)
                             <input
-                                placeholder="top text"
-                                value={topText}
-                                onChange={e => setTopText(e.target.value)}
+                                type="number"
+                                style={{'width': '50px'}}
+                                placeholder="50"
+                                value={topTextSize}
+                                onChange={handleTopTextSizeChange}
                             />
-                            <br/>
-                            <input
-                                placeholder="bottom text"
-                                value={bottomText}
-                                onChange={e => setBottomText(e.target.value)}
-                            />
-                            <br/>
+                            <div className="text-area">
+                                <input
+                                    placeholder="bottom text"
+                                    value={bottomText}
+                                    onChange={e => setBottomText(e.target.value)}
+                                />
+                                <Popup trigger={<div id="bottom-text-color" className="color-picker"/>} position="bottom center">
+                                    <div> <Chrome
+                                        color={hexBottom}
+                                        style={{ float: 'left' }}
+                                        placement={GithubPlacement.Right}
+                                        onChange={handleBottomTextColorChange}
+                                    /></div>
+                                </Popup>
 
+                            </div>
+                            Max font size (px)
+                            <input
+                                type="number"
+                                style={{'width': '50px'}}
+                                placeholder="50"
+                                value={bottomTextSize}
+                                onChange={handleBottomTextSizeChange}
+                            />
+                            <br/>
                             <Button onClick={clear}>Clear</Button>
                             <div>
                                 Set meme's permission
@@ -594,7 +685,6 @@ function MemeMaker() {
                             <Button id="generate" type="submit" onClick={handleShowGenerate}>Generate meme</Button>
 
                         </div>
-
                     </div>
 
 
