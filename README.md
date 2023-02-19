@@ -18,4 +18,5 @@ react-frontend:
 6. react-canvas-draw - draw on canvas 
 7. @uiw/react-color-chrome - color picker
 8. reactjs-popup - popup component
+9. react-icons - icons
 

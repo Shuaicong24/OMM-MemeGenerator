@@ -41,6 +41,9 @@
  * https://www.npmjs.com/package/reactjs-popup
  * https://stackoverflow.com/questions/18092753/change-font-size-of-canvas-without-knowing-font-family
  * https://stackoverflow.com/questions/1874560/how-to-use-javascript-to-change-div-backgroundcolor
+ * Icons:
+ * https://react-icons.github.io/react-icons/icons?name=bs
+ *
  * */
 
 import React, {useEffect, useRef, useState} from "react";
@@ -53,6 +56,10 @@ import CanvasDraw from "react-canvas-draw";
 import Chrome from '@uiw/react-color-chrome';
 import {GithubPlacement} from '@uiw/react-color-github';
 import Popup from 'reactjs-popup';
+import {BsFillArrowUpSquareFill} from "react-icons/bs";
+import {BsFillArrowDownSquareFill} from "react-icons/bs";
+import {BsFillArrowLeftSquareFill} from "react-icons/bs";
+import {BsFillArrowRightSquareFill} from "react-icons/bs";
 
 
 const LINK_MEME_PREFIX = 'http://localhost:3000/m/';
@@ -76,6 +83,10 @@ function MemeMaker() {
     const [topTextSize, setTopTextSize] = useState('50');
     const [bottomText, setBottomText] = useState('');
     const [bottomTextSize, setBottomTextSize] = useState('50');
+    const [topTextPosX, setTopTextPosX] = useState(0);
+    const [topTextPosY, setTopTextPosY] = useState(0);
+
+
     const [image, setImage] = useState(null);
     const [showUpload, setShowUpload] = useState(false);
     const canvasRef = useRef(null);
@@ -264,7 +275,7 @@ function MemeMaker() {
 
             const ctx = canvas.current.getContext("2d");
             ctx.fillStyle = "white";
-            //ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             ctx.drawImage(meme, 0, 0, myCanvas.width, myCanvas.height);
 
@@ -561,6 +572,11 @@ function MemeMaker() {
         bottomTextColorDiv.style.backgroundColor = color.hexa;
     }
 
+    const handleTopText = () => {
+        setTopTextPosY(texts[0].y -= 2);
+        console.log('topTextPosY', topTextPosY);
+    }
+    
     return (
         <div>
             <div className="template-area">
@@ -638,6 +654,12 @@ function MemeMaker() {
                                 value={topTextSize}
                                 onChange={handleTopTextSizeChange}
                             />
+                            <br/>
+                            Click to move text
+                            <BsFillArrowUpSquareFill id="top-text-up" className="move-arrow" onClick={handleTopText}/>
+                            <BsFillArrowDownSquareFill id="top-text-down" className="move-arrow"/>
+                            <BsFillArrowLeftSquareFill id="top-text-left" className="move-arrow"/>
+                            <BsFillArrowRightSquareFill id="top-text-right" className="move-arrow"/>
                             <div className="text-area">
                                 <input
                                     placeholder="bottom text"
@@ -662,6 +684,12 @@ function MemeMaker() {
                                 value={bottomTextSize}
                                 onChange={handleBottomTextSizeChange}
                             />
+                            <br/>
+                            Click to move text
+                            <BsFillArrowUpSquareFill id="bottom-text-up" className="move-arrow"/>
+                            <BsFillArrowDownSquareFill id="bottom-text-down" className="move-arrow"/>
+                            <BsFillArrowLeftSquareFill id="bottom-text-left" className="move-arrow"/>
+                            <BsFillArrowRightSquareFill id="bottom-text-right" className="move-arrow"/>
                             <br/>
                             <Button onClick={clear}>Clear</Button>
                             <div>

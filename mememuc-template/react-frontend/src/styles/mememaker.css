@@ -84,3 +84,9 @@ input {
     height: 30px;
     border-radius: 2px;
 }
+
+.move-arrow {
+    margin-left: 3px;
+    width: 30px;
+    height: 30px;
+}
