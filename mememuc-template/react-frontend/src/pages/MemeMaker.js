@@ -85,12 +85,18 @@ function MemeMaker() {
     const [templates, setTemplates] = useState([]);
     const [template, setTemplate] = useState(null);
     const [title, setTitle] = useState('');
+
     const [topText, setTopText] = useState('');
     const [topTextSize, setTopTextSize] = useState('50');
+    const [middleText, setMiddleText] = useState('');
+    const [middleTextSize, setMiddleTextSize] = useState('50');
     const [bottomText, setBottomText] = useState('');
     const [bottomTextSize, setBottomTextSize] = useState('50');
+
     const [topTextPosX, setTopTextPosX] = useState(0);
     const [topTextPosY, setTopTextPosY] = useState(0);
+    const [middleTextPosX, setMiddleTextPosX] = useState(0);
+    const [middleTextPosY, setMiddleTextPosY] = useState(0);
     const [bottomTextPosX, setBottomTextPosX] = useState(0);
     const [bottomTextPosY, setBottomTextPosY] = useState(0);
 
@@ -117,6 +123,7 @@ function MemeMaker() {
 
     const texts = [];
     const [hexTop, setHexTop] = useState("#000000");
+    const [hexMiddle, setHexMiddle] = useState("#000000");
     const [hexBottom, setHexBottom] = useState("#000000");
     const [first, setFirst] = useState(true);
 
@@ -321,15 +328,19 @@ function MemeMaker() {
             ctx.textAlign = "center";
 
             if (first) {
-                texts.push({text: topText, x: (myCanvas.width / 2), y: 100});
-                texts.push({text: bottomText, x: (myCanvas.width / 2), y: myCanvas.height - 100});
+                texts.push({text: topText, x: myCanvas.width / 2, y: 100});
+                texts.push({text: middleText, x: myCanvas.width / 2, y: myCanvas.height / 2});
+                texts.push({text: bottomText, x: myCanvas.width / 2, y: myCanvas.height - 100});
                 setFirst(false);
                 setTopTextPosX(myCanvas.width / 2);
                 setTopTextPosY(100);
+                setMiddleTextPosX(myCanvas.width / 2);
+                setMiddleTextPosY(myCanvas.height / 2);
                 setBottomTextPosX(myCanvas.width / 2);
                 setBottomTextPosY(myCanvas.height - 100);
             } else {
                 texts.push({text: topText, x: topTextPosX, y: topTextPosY});
+                texts.push({text: middleText, x: middleTextPosX, y: middleTextPosY});
                 texts.push({text: bottomText, x: bottomTextPosX, y: bottomTextPosY});
             }
 
@@ -346,6 +357,10 @@ function MemeMaker() {
                     ctx.fillStyle = hexTop;
                 }
                 if (i === 1) {
+                    ctx.font = ctx.font.replace(match, middleTextSize);
+                    ctx.fillStyle = hexMiddle;
+                }
+                if (i === 2) {
                     ctx.font = ctx.font.replace(match, bottomTextSize);
                     ctx.fillStyle = hexBottom;
                 }
@@ -502,6 +517,16 @@ function MemeMaker() {
         }
     }
 
+    function handleMiddleTextSizeChange(e) {
+        if (e.target.value > 100) {
+            setMiddleTextSize("100");
+        } else if (e.target.value < 1) {
+            setMiddleTextSize("1");
+        } else {
+            setMiddleTextSize(e.target.value)
+        }
+    }
+
     function handleBottomTextSizeChange(e) {
         if (e.target.value > 100) {
             setBottomTextSize("100");
@@ -518,6 +543,12 @@ function MemeMaker() {
         topTextColorDiv.style.backgroundColor = color.hexa;
     }
 
+    const handleMiddleTextColorChange = (color) => {
+        const middleTextColorDiv = document.getElementById('middle-text-color');
+        setHexMiddle(color.hexa);
+        middleTextColorDiv.style.backgroundColor = color.hexa;
+    }
+
     const handleBottomTextColorChange = (color) => {
         const bottomTextColorDiv = document.getElementById('bottom-text-color');
         setHexBottom(color.hexa);
@@ -528,8 +559,11 @@ function MemeMaker() {
         if (e.currentTarget.id === 'top-text-up' && topTextPosY > texts[0].styleTextHeight) {
             setTopTextPosY(texts[0].y -= 5);
         }
-        if (e.currentTarget.id === 'bottom-text-up' && bottomTextPosY > texts[1].styleTextHeight) {
-            setBottomTextPosY(texts[1].y -= 5);
+        if (e.currentTarget.id === 'middle-text-up' && middleTextPosY > texts[1].styleTextHeight) {
+            setMiddleTextPosY(texts[1].y -= 5);
+        }
+        if (e.currentTarget.id === 'bottom-text-up' && bottomTextPosY > texts[2].styleTextHeight) {
+            setBottomTextPosY(texts[2].y -= 5);
         }
     }
 
@@ -537,8 +571,11 @@ function MemeMaker() {
         if (e.currentTarget.id === 'top-text-down' && topTextPosY < texts[0].canvasHeight) {
             setTopTextPosY(texts[0].y += 5);
         }
-        if (e.currentTarget.id === 'bottom-text-down' && bottomTextPosY < texts[1].canvasHeight) {
-            setBottomTextPosY(texts[1].y += 5);
+        if (e.currentTarget.id === 'middle-text-down' && middleTextPosY < texts[1].canvasHeight) {
+            setMiddleTextPosY(texts[1].y += 5);
+        }
+        if (e.currentTarget.id === 'bottom-text-down' && bottomTextPosY < texts[2].canvasHeight) {
+            setBottomTextPosY(texts[2].y += 5);
         }
     }
 
@@ -546,8 +583,11 @@ function MemeMaker() {
         if (e.currentTarget.id === 'top-text-left' && topTextPosX > texts[0].styleTextWidth) {
             setTopTextPosX(texts[0].x -= 5);
         }
-        if (e.currentTarget.id === 'bottom-text-left' && bottomTextPosX > texts[1].styleTextWidth) {
-            setBottomTextPosX(texts[1].x -= 5);
+        if (e.currentTarget.id === 'middle-text-left' && middleTextPosX > texts[1].styleTextWidth) {
+            setMiddleTextPosX(texts[1].x -= 5);
+        }
+        if (e.currentTarget.id === 'bottom-text-left' && bottomTextPosX > texts[2].styleTextWidth) {
+            setBottomTextPosX(texts[2].x -= 5);
         }
     }
 
@@ -555,8 +595,11 @@ function MemeMaker() {
         if (e.currentTarget.id === 'top-text-right' && topTextPosX < texts[0].canvasWidth - texts[0].styleTextWidth) {
             setTopTextPosX(texts[0].x += 5);
         }
-        if (e.currentTarget.id === 'bottom-text-right' && bottomTextPosX < texts[1].canvasWidth - texts[1].styleTextWidth) {
-            setBottomTextPosX(texts[1].x += 5);
+        if (e.currentTarget.id === 'middle-text-right' && middleTextPosX < texts[1].canvasWidth - texts[1].styleTextWidth) {
+            setMiddleTextPosX(texts[1].x += 5);
+        }
+        if (e.currentTarget.id === 'bottom-text-right' && bottomTextPosX < texts[2].canvasWidth - texts[2].styleTextWidth) {
+            setBottomTextPosX(texts[2].x += 5);
         }
     }
 
@@ -566,10 +609,15 @@ function MemeMaker() {
             setTopTextPosY(texts[0].y -= 5);
             setTopTextPosX(texts[0].x -= 5);
         }
+        if (e.currentTarget.id === 'middle-text-up-left' &&
+            middleTextPosY > texts[1].styleTextHeight && middleTextPosX > texts[1].styleTextWidth) {
+            setMiddleTextPosY(texts[1].y -= 5);
+            setMiddleTextPosX(texts[1].x -= 5);
+        }
         if (e.currentTarget.id === 'bottom-text-up-left' &&
-            bottomTextPosY > texts[1].styleTextHeight && bottomTextPosX > texts[1].styleTextWidth) {
-            setBottomTextPosY(texts[1].y -= 5);
-            setBottomTextPosX(texts[1].x -= 5);
+            bottomTextPosY > texts[2].styleTextHeight && bottomTextPosX > texts[2].styleTextWidth) {
+            setBottomTextPosY(texts[2].y -= 5);
+            setBottomTextPosX(texts[2].x -= 5);
         }
     }
 
@@ -579,10 +627,15 @@ function MemeMaker() {
             setTopTextPosY(texts[0].y -= 5);
             setTopTextPosX(texts[0].x += 5);
         }
+        if (e.currentTarget.id === 'middle-text-up-right' &&
+            middleTextPosY > texts[1].styleTextHeight && middleTextPosX < texts[1].canvasWidth - texts[1].styleTextWidth) {
+            setMiddleTextPosY(texts[1].y -= 5);
+            setMiddleTextPosX(texts[1].x += 5);
+        }
         if (e.currentTarget.id === 'bottom-text-up-right' &&
-            bottomTextPosY > texts[1].styleTextHeight && bottomTextPosX < texts[1].canvasWidth - texts[1].styleTextWidth) {
-            setBottomTextPosY(texts[1].y -= 5);
-            setBottomTextPosX(texts[1].x += 5);
+            bottomTextPosY > texts[2].styleTextHeight && bottomTextPosX < texts[2].canvasWidth - texts[2].styleTextWidth) {
+            setBottomTextPosY(texts[2].y -= 5);
+            setBottomTextPosX(texts[2].x += 5);
         }
     }
 
@@ -592,10 +645,15 @@ function MemeMaker() {
             setTopTextPosY(texts[0].y += 5);
             setTopTextPosX(texts[0].x -= 5);
         }
+        if (e.currentTarget.id === 'middle-text-down-left' &&
+            middleTextPosY < texts[1].canvasHeight && middleTextPosX > texts[1].styleTextWidth) {
+            setMiddleTextPosY(texts[1].y += 5);
+            setMiddleTextPosX(texts[1].x -= 5);
+        }
         if (e.currentTarget.id === 'bottom-text-down-left' &&
-            bottomTextPosY < texts[1].canvasHeight && bottomTextPosX > texts[1].styleTextWidth) {
-            setBottomTextPosY(texts[1].y += 5);
-            setBottomTextPosX(texts[1].x -= 5);
+            bottomTextPosY < texts[2].canvasHeight && bottomTextPosX > texts[2].styleTextWidth) {
+            setBottomTextPosY(texts[2].y += 5);
+            setBottomTextPosX(texts[2].x -= 5);
         }
     }
 
@@ -605,10 +663,15 @@ function MemeMaker() {
             setTopTextPosY(texts[0].y += 5);
             setTopTextPosX(texts[0].x += 5);
         }
+        if (e.currentTarget.id === 'middle-text-down-right' &&
+            middleTextPosY < texts[1].canvasHeight && middleTextPosX < texts[1].canvasWidth - texts[1].styleTextWidth) {
+            setMiddleTextPosY(texts[1].y += 5);
+            setMiddleTextPosX(texts[1].x += 5);
+        }
         if (e.currentTarget.id === 'bottom-text-down-right' &&
-            bottomTextPosY < texts[1].canvasHeight && bottomTextPosX < texts[1].canvasWidth - texts[1].styleTextWidth) {
-            setBottomTextPosY(texts[1].y += 5);
-            setBottomTextPosX(texts[1].x += 5);
+            bottomTextPosY < texts[2].canvasHeight && bottomTextPosX < texts[2].canvasWidth - texts[2].styleTextWidth) {
+            setBottomTextPosY(texts[2].y += 5);
+            setBottomTextPosX(texts[2].x += 5);
         }
     }
 
@@ -708,6 +771,48 @@ function MemeMaker() {
                             <BsFillArrowDownLeftSquareFill id="top-text-down-left" className="move-arrow"
                                                            onClick={handleTextDownLeft}/>
                             <BsFillArrowDownRightSquareFill id="top-text-down-right" className="move-arrow"
+                                                            onClick={handleTextDownRight}/>
+
+                            <div className="text-area">
+                                <input
+                                    placeholder="middle text"
+                                    value={middleText}
+                                    onChange={e => setMiddleText(e.target.value)}
+                                />
+                                <Popup trigger={<div id="middle-text-color" className="color-picker"/>}
+                                       position="bottom center">
+                                    <div><Chrome
+                                        color={hexMiddle}
+                                        style={{float: 'left'}}
+                                        placement={GithubPlacement.Right}
+                                        onChange={handleMiddleTextColorChange}
+                                    /></div>
+                                </Popup>
+                            </div>
+                            Max font size (px)
+                            <input
+                                type="number"
+                                style={{'width': '50px'}}
+                                placeholder="50"
+                                value={middleTextSize}
+                                onChange={handleMiddleTextSizeChange}
+                            />
+                            <br/>
+                            Click to move text
+                            <BsFillArrowUpSquareFill id="middle-text-up" className="move-arrow" onClick={handleTextUp}/>
+                            <BsFillArrowDownSquareFill id="middle-text-down" className="move-arrow"
+                                                       onClick={handleTextDown}/>
+                            <BsFillArrowLeftSquareFill id="middle-text-left" className="move-arrow"
+                                                       onClick={handleTextLeft}/>
+                            <BsFillArrowRightSquareFill id="middle-text-right" className="move-arrow"
+                                                        onClick={handleTextRight}/>
+                            <BsFillArrowUpLeftSquareFill id="middle-text-up-left" className="move-arrow"
+                                                         onClick={handleTextUpLeft}/>
+                            <BsFillArrowUpRightSquareFill id="middle-text-up-right" className="move-arrow"
+                                                          onClick={handleTextUpRight}/>
+                            <BsFillArrowDownLeftSquareFill id="middle-text-down-left" className="move-arrow"
+                                                           onClick={handleTextDownLeft}/>
+                            <BsFillArrowDownRightSquareFill id="middle-text-down-right" className="move-arrow"
                                                             onClick={handleTextDownRight}/>
 
                             <div className="text-area">
