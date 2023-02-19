@@ -25,17 +25,17 @@
  * https://medium.com/@s.alexis/using-react-router-useparams-to-fetch-data-dynamically-13288e24ed1
  * The idea that adding an image does not change the current image on the canvas, i.e. continuously append pictures, using an array:
  * help from Xueru Zheng, Group 070
- * $ identifier:
- * https://intellij-support.jetbrains.com/hc/en-us/community/posts/360002260719--jQuery-shortcut-underlined-as-unresolved-function-or-method-
  * Upload by provided image URL:
  * https://codepen.io/kallil-belmonte/pen/KKKRoyx
  * https://www.w3schools.com/jsref/prop_style_bordercolor.asp
  * Upload by drawing:
  * https://www.npmjs.com/package/react-canvas-draw
  * https://codesandbox.io/s/react-canvas-draw-example-forked-5vkkxo?file=/src/index.js:932-1094
- * Make texts on canvas movable:
- * https://www.w3schools.com/tags/canvas_measuretext.asp
+ * Make texts on canvas movable (draggable):
+ * http://jsfiddle.net/RWCH/Lg2xagjo/
  * https://erikonarheim.com/posts/canvas-text-metrics/
+ * https://stackoverflow.com/questions/4032179/how-do-i-get-the-width-and-height-of-a-html5-canvas
+ * https://stackoverflow.com/questions/1134586/how-can-you-find-the-height-of-text-on-an-html-canvas
  * */
 
 import React, {useEffect, useRef, useState} from "react";
@@ -87,10 +87,10 @@ function MemeMaker() {
     const canvasDrawRef = useRef(null);
 
     const texts = [];
-    let current_text_index = null;
+    let currentTextIndex = null;
 
-    var startX, startY;
-    var selectedText = -1;
+    let startX, startY;
+    let selectedText = -1;
 
     const handleCloseDraw = () => {
         setShowDraw(false);
@@ -239,39 +239,6 @@ function MemeMaker() {
         setTitle('');
     }
 
-    function isMouseInText(x, y, text) {
-        let text_left = text.x;
-        let text_right = text.x + text.width;
-        let text_top = text.y;
-        let text_bottom = text.y + text.height;
-        console.log(`text_left: ${text_left}, text_right: ${text_right},
-        text_top: ${text_top}, text_bottom: ${text_bottom}`);
-
-        return x > text_left && x < text_right && y > text_top && y < text_bottom;
-    }
-
-    let mouseDown = function (event) {
-        event.preventDefault();
-        console.log(event);
-        let startX = parseInt(event.clientX - event.offsetX);
-        let startY = parseInt(event.offsetY - event.offsetY);
-
-
-        let index = 0;
-        for (let text of texts) {
-            console.log(`x: ${text.x}, y: ${text.y}, width: ${text.width}, height: ${text.height}`);
-            if (isMouseInText(startX, startY, text)) {
-                console.log('yes');
-                current_text_index = index;
-            } else {
-                console.log('no');
-            }
-            index++;
-        }
-
-
-    }
-
     function draw(canvas) {
         const myCanvas = canvasRef.current;
 
@@ -282,7 +249,8 @@ function MemeMaker() {
 
             const ctx = canvas.current.getContext("2d");
             ctx.fillStyle = "white";
-           // ctx.fillRect(0, 0, canvas.width, canvas.height);
+            //ctx.clearRect(0, 0, canvas.width, canvas.height);
+
             ctx.drawImage(meme, 0, 0, myCanvas.width, myCanvas.height);
 
             // store previous status of canvas
@@ -325,27 +293,39 @@ function MemeMaker() {
             ctx.fillStyle = "green";
             ctx.textAlign = "center";
 
-            console.log('widdasd: ', ctx.measureText(topText).width);
-            const top_metrics = ctx.measureText(topText);
-            const top_height = Math.abs(top_metrics.actualBoundingBoxAscent) + Math.abs(top_metrics.actualBoundingBoxDescent);
-            const bottom_metrics = ctx.measureText(bottomText);
-            const bottom_height = Math.abs(bottom_metrics.actualBoundingBoxAscent) + Math.abs(bottom_metrics.actualBoundingBoxDescent);
+            texts.push({text: topText, x: (myCanvas.width / 2), y: 100});
+            texts.push({text: bottomText, x: (myCanvas.width / 2), y: myCanvas.height - 100});
 
-            texts.push({text: topText, x: (myCanvas.width / 2), y: 100});//, width: ctx.measureText(topText).width, height: top_height});
-            texts.push({text: bottomText, x: (myCanvas.width / 2), y: myCanvas.height - 100});//, width: ctx.measureText(bottomText).width, height: bottom_height});
+            // style width in canvas
+            const styleCanvasWidth = myCanvas.getBoundingClientRect().width;
+            const styleCanvasHeight = myCanvas.getBoundingClientRect().height;
 
-            console.log(`half canvas width: ${(myCanvas.width / 2)}`)
             for (let i = 0; i < texts.length; i++) {
                 const text = texts[i];
                 text.width = ctx.measureText(text.text).width;
-                text.height = 60;
+                const metrics = ctx.measureText(text.text);
+                text.height = Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
+
                 ctx.fillText(text.text, text.x, text.y, myCanvas.width);
                 ctx.fill();
+
+                const styleTextWidth = text.width / myCanvas.width * styleCanvasWidth;
+                const startX = (styleCanvasWidth - styleTextWidth) / 2;
+                text.styleTextWidth = styleTextWidth;
+                text.startX = startX;
+
+                const styleTextHeight = text.height / myCanvas.height * styleCanvasHeight;
+                const styleTopHeight = text.y / myCanvas.height * styleCanvasHeight;
+                const startY = styleTopHeight - styleTextHeight;
+                text.styleTextHeight = styleTextHeight;
+                text.startY = startY;
+
             }
 
-            myCanvas.onmousedown = handleMouseDown;
-            // ctx.fillText(topText, (myCanvas.width / 2), 100, myCanvas.width);
-            // ctx.fillText(bottomText, (myCanvas.width / 2), myCanvas.height - 100, myCanvas.width);
+            // myCanvas.onmousedown = handleMouseDown;
+            // myCanvas.onmousemove = handleMouseMove;
+            // myCanvas.onmouseup = handleMouseUp;
+            // myCanvas.onmouseout = handleMouseOut;
 
         } else {
             myCanvas.width = 0;
@@ -353,30 +333,31 @@ function MemeMaker() {
         }
     }
 
-
     function textHitTest(x, y, textIndex) {
         const text = texts[textIndex];
-        console.log(`XOUTPUT: ${x}, ${text.x}, ${text.x+text.width}`);
-
-        console.log(`YOUTPUT:${y}, ${text.y - text.height}, ${text.y}`);
-        return (x >= text.x && x <= text.x + text.width && y >= text.y - text.height && y <= text.y);
+        return (x >= text.startX && x <= text.startX + text.styleTextWidth && y >= text.startY && y <= text.startY + text.styleTextHeight);
     }
 
     function handleMouseDown(e) {
         e.preventDefault();
-        startX = parseInt(e.clientX - canvasRef.current.offsetLeft);
-        startY = parseInt(e.clientY - canvasRef.current.offsetTop);
-
-        // Put your mousedown stuff here
-        for (var i = 0; i < texts.length; i++) {
+        console.log(e);
+        startX = parseInt(e.offsetX);
+        startY = parseInt(e.offsetY);
+        for (let i = 0; i < texts.length; i++) {
             if (textHitTest(startX, startY, i)) {
-                const canvas = canvasRef.current;
-                canvas.setAttribute('cursor','pointer');
                 selectedText = i;
-            } else {
-                alert('dfs');
             }
         }
+    }
+
+    function handleMouseUp(e) {
+        e.preventDefault();
+        selectedText = -1;
+    }
+
+    function handleMouseOut(e) {
+        e.preventDefault();
+        selectedText = -1;
     }
 
     function handleMouseMove(e) {
@@ -384,22 +365,20 @@ function MemeMaker() {
             return;
         }
         e.preventDefault();
-        const mouseX = parseInt(e.clientX - e.offsetX);
-        const mouseY = parseInt(e.clientY - e.offsetY);
+        const mouseX = parseInt(e.offsetX);
+        const mouseY = parseInt(e.offsetY);
 
-        // Put your mousemove stuff here
-        var dx = mouseX - startX;
-        var dy = mouseY - startY;
+        const dx = mouseX - startX;
+        const dy = mouseY - startY;
         startX = mouseX;
         startY = mouseY;
 
-        var text = texts[selectedText];
+        const text = texts[selectedText];
         text.x += dx;
         text.y += dy;
+        // cannot remove the old ones.
         draw(canvasRef);
     }
-
-
 
     const alignImage = (myCanvas, imgUrl, pos) => {
         const addedImage = new Image();
@@ -566,6 +545,7 @@ function MemeMaker() {
                             </div>
                             <canvas id="meme-canvas" className="meme-canvas" ref={canvasRef} width="0" height="0">
                                 {meme && draw(canvasRef)}
+                                <div id="top-text">{topText}</div>
                             </canvas>
                             <p>{caption}</p>
                             <br/>
