@@ -33,10 +33,9 @@
  * https://codesandbox.io/s/react-canvas-draw-example-forked-5vkkxo?file=/src/index.js:932-1094
  * Make texts on canvas movable (draggable, not working!):
  * http://jsfiddle.net/RWCH/Lg2xagjo/
+ * Make texts on canvas movable (by buttons):
  * https://erikonarheim.com/posts/canvas-text-metrics/
  * https://stackoverflow.com/questions/4032179/how-do-i-get-the-width-and-height-of-a-html5-canvas
- * https://stackoverflow.com/questions/1134586/how-can-you-find-the-height-of-text-on-an-html-canvas
- * Make texts on canvas movable (by buttons):
  * https://stackoverflow.com/questions/15700452/jquery-functionevent-event-target-id-is-blank-when-clicking-linked-text
  * Change font size and color:
  * https://uiwjs.github.io/react-color/#/chrome
@@ -58,15 +57,16 @@ import CanvasDraw from "react-canvas-draw";
 import Chrome from '@uiw/react-color-chrome';
 import {GithubPlacement} from '@uiw/react-color-github';
 import Popup from 'reactjs-popup';
-import {BsFillArrowUpSquareFill} from "react-icons/bs";
-import {BsFillArrowDownSquareFill} from "react-icons/bs";
-import {BsFillArrowLeftSquareFill} from "react-icons/bs";
-import {BsFillArrowRightSquareFill} from "react-icons/bs";
-import {BsFillArrowUpLeftSquareFill} from "react-icons/bs";
-import {BsFillArrowUpRightSquareFill} from "react-icons/bs";
-import {BsFillArrowDownLeftSquareFill} from "react-icons/bs";
-import {BsFillArrowDownRightSquareFill} from "react-icons/bs";
-
+import {
+    BsFillArrowDownLeftSquareFill,
+    BsFillArrowDownRightSquareFill,
+    BsFillArrowDownSquareFill,
+    BsFillArrowLeftSquareFill,
+    BsFillArrowRightSquareFill,
+    BsFillArrowUpLeftSquareFill,
+    BsFillArrowUpRightSquareFill,
+    BsFillArrowUpSquareFill
+} from "react-icons/bs";
 
 const LINK_MEME_PREFIX = 'http://localhost:3000/m/';
 
@@ -116,14 +116,8 @@ function MemeMaker() {
     const canvasDrawRef = useRef(null);
 
     const texts = [];
-    let currentTextIndex = null;
-
-    let startX, startY;
-    let selectedText = -1;
-
     const [hexTop, setHexTop] = useState("#000000");
     const [hexBottom, setHexBottom] = useState("#000000");
-
     const [first, setFirst] = useState(true);
 
     const handleCloseDraw = () => {
@@ -285,8 +279,6 @@ function MemeMaker() {
 
             const ctx = canvas.current.getContext("2d");
             ctx.fillStyle = "white";
-          //  ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
-
             ctx.drawImage(meme, 0, 0, myCanvas.width, myCanvas.height);
 
             // store previous status of canvas
@@ -314,7 +306,6 @@ function MemeMaker() {
                 } else if (pos === 'above') {
                     const addedImage = alignImage(myCanvas, imgUrl, 'vertical');
                     myCanvas.height = myCanvas.height + addedImage.height;
-
                     ctx.drawImage(addedImage, 0, 0, addedImage.width, addedImage.height);
                     ctx.drawImage(oldCanvas, 0, addedImage.height, oldCanvas.width, oldCanvas.height);
                 } else if (pos === 'below') {
@@ -324,7 +315,6 @@ function MemeMaker() {
                     ctx.drawImage(addedImage, 0, oldCanvas.height, addedImage.width, addedImage.height);
                 }
             }
-
 
             ctx.font = "50px Comic Sans MS";
             ctx.fillStyle = "green";
@@ -359,6 +349,7 @@ function MemeMaker() {
                     ctx.font = ctx.font.replace(match, bottomTextSize);
                     ctx.fillStyle = hexBottom;
                 }
+
                 text.width = ctx.measureText(text.text).width;
                 const metrics = ctx.measureText(text.text);
                 text.height = Math.abs(metrics.actualBoundingBoxAscent) + Math.abs(metrics.actualBoundingBoxDescent);
@@ -366,81 +357,16 @@ function MemeMaker() {
                 ctx.fillText(text.text, text.x, text.y, myCanvas.width);
                 ctx.fill();
 
-                const styleTextWidth = text.width / myCanvas.width * styleCanvasWidth;
-                const startX = (styleCanvasWidth - styleTextWidth) / 2;
-                text.styleTextWidth = styleTextWidth;
-                text.startX = startX;
-
-                const styleTextHeight = text.height / myCanvas.height * styleCanvasHeight;
-                const styleTopHeight = text.y / myCanvas.height * styleCanvasHeight;
-                const startY = styleTopHeight - styleTextHeight;
-                text.styleTextHeight = styleTextHeight;
-                text.startY = startY;
-
-                text.styleCanvasWidth = styleCanvasWidth;
-                text.styleCanvasHeight = styleCanvasHeight;
-                text.canvasHeight = myCanvas.height;
+                text.styleTextWidth = text.width / myCanvas.width * styleCanvasWidth;
+                text.styleTextHeight = text.height / myCanvas.height * styleCanvasHeight;
                 text.canvasWidth = myCanvas.width;
-
-
+                text.canvasHeight = myCanvas.height;
             }
-
-             //myCanvas.onmousedown = handleMouseDown;
-            // myCanvas.onmousemove = handleMouseMove;
-            // myCanvas.onmouseup = handleMouseUp;
-            // myCanvas.onmouseout = handleMouseOut;
 
         } else {
             myCanvas.width = 0;
             myCanvas.height = 0;
         }
-    }
-
-    function textHitTest(x, y, textIndex) {
-        const text = texts[textIndex];
-        return (x >= text.startX && x <= text.startX + text.styleTextWidth && y >= text.startY && y <= text.startY + text.styleTextHeight);
-    }
-
-    function handleMouseDown(e) {
-        e.preventDefault();
-        console.log(e);
-        startX = parseInt(e.offsetX);
-        startY = parseInt(e.offsetY);
-        for (let i = 0; i < texts.length; i++) {
-            if (textHitTest(startX, startY, i)) {
-                selectedText = i;
-            }
-        }
-    }
-
-    function handleMouseUp(e) {
-        e.preventDefault();
-        selectedText = -1;
-    }
-
-    function handleMouseOut(e) {
-        e.preventDefault();
-        selectedText = -1;
-    }
-
-    function handleMouseMove(e) {
-        if (selectedText < 0) {
-            return;
-        }
-        e.preventDefault();
-        const mouseX = parseInt(e.offsetX);
-        const mouseY = parseInt(e.offsetY);
-
-        const dx = mouseX - startX;
-        const dy = mouseY - startY;
-        startX = mouseX;
-        startY = mouseY;
-
-        const text = texts[selectedText];
-        text.x += dx;
-        text.y += dy;
-        // cannot remove the old ones.
-        draw(canvasRef);
     }
 
     const alignImage = (myCanvas, imgUrl, pos) => {
@@ -606,7 +532,7 @@ function MemeMaker() {
             setBottomTextPosY(texts[1].y -= 5);
         }
     }
-    
+
     const handleTextDown = (e) => {
         if (e.currentTarget.id === 'top-text-down' && topTextPosY < texts[0].canvasHeight) {
             setTopTextPosY(texts[0].y += 5);
@@ -720,7 +646,8 @@ function MemeMaker() {
                     <br/>
                     * After choosing/uploading a template, it won't show immediately. You should add text or click
                     again to see it on canvas.<br/>
-                    * After adding too many images, the canvas content is sometimes displayed incorrectly.
+                    * After adding (too many) images, the canvas content is sometimes displayed incorrectly. Try to
+                    modify the texts or click move buttons.
 
                     <div className="parent-div">
                         <div className="left-div">
@@ -747,10 +674,11 @@ function MemeMaker() {
                                     value={topText}
                                     onChange={e => setTopText(e.target.value)}
                                 />
-                                <Popup trigger={<div id="top-text-color" className="color-picker"/>} position="bottom center">
-                                    <div> <Chrome
+                                <Popup trigger={<div id="top-text-color" className="color-picker"/>}
+                                       position="bottom center">
+                                    <div><Chrome
                                         color={hexTop}
-                                        style={{ float: 'left' }}
+                                        style={{float: 'left'}}
                                         placement={GithubPlacement.Right}
                                         onChange={handleTopTextColorChange}
                                     /></div>
@@ -767,13 +695,20 @@ function MemeMaker() {
                             <br/>
                             Click to move text
                             <BsFillArrowUpSquareFill id="top-text-up" className="move-arrow" onClick={handleTextUp}/>
-                            <BsFillArrowDownSquareFill id="top-text-down" className="move-arrow" onClick={handleTextDown}/>
-                            <BsFillArrowLeftSquareFill id="top-text-left" className="move-arrow" onClick={handleTextLeft}/>
-                            <BsFillArrowRightSquareFill id="top-text-right" className="move-arrow" onClick={handleTextRight}/>
-                            <BsFillArrowUpLeftSquareFill id="top-text-up-left" className="move-arrow" onClick={handleTextUpLeft}/>
-                            <BsFillArrowUpRightSquareFill id="top-text-up-right" className="move-arrow" onClick={handleTextUpRight}/>
-                            <BsFillArrowDownLeftSquareFill id="top-text-down-left" className="move-arrow" onClick={handleTextDownLeft}/>
-                            <BsFillArrowDownRightSquareFill id="top-text-down-right" className="move-arrow" onClick={handleTextDownRight}/>
+                            <BsFillArrowDownSquareFill id="top-text-down" className="move-arrow"
+                                                       onClick={handleTextDown}/>
+                            <BsFillArrowLeftSquareFill id="top-text-left" className="move-arrow"
+                                                       onClick={handleTextLeft}/>
+                            <BsFillArrowRightSquareFill id="top-text-right" className="move-arrow"
+                                                        onClick={handleTextRight}/>
+                            <BsFillArrowUpLeftSquareFill id="top-text-up-left" className="move-arrow"
+                                                         onClick={handleTextUpLeft}/>
+                            <BsFillArrowUpRightSquareFill id="top-text-up-right" className="move-arrow"
+                                                          onClick={handleTextUpRight}/>
+                            <BsFillArrowDownLeftSquareFill id="top-text-down-left" className="move-arrow"
+                                                           onClick={handleTextDownLeft}/>
+                            <BsFillArrowDownRightSquareFill id="top-text-down-right" className="move-arrow"
+                                                            onClick={handleTextDownRight}/>
 
                             <div className="text-area">
                                 <input
@@ -781,10 +716,11 @@ function MemeMaker() {
                                     value={bottomText}
                                     onChange={e => setBottomText(e.target.value)}
                                 />
-                                <Popup trigger={<div id="bottom-text-color" className="color-picker"/>} position="bottom center">
-                                    <div> <Chrome
+                                <Popup trigger={<div id="bottom-text-color" className="color-picker"/>}
+                                       position="bottom center">
+                                    <div><Chrome
                                         color={hexBottom}
-                                        style={{ float: 'left' }}
+                                        style={{float: 'left'}}
                                         placement={GithubPlacement.Right}
                                         onChange={handleBottomTextColorChange}
                                     /></div>
@@ -802,13 +738,20 @@ function MemeMaker() {
                             <br/>
                             Click to move text
                             <BsFillArrowUpSquareFill id="bottom-text-up" className="move-arrow" onClick={handleTextUp}/>
-                            <BsFillArrowDownSquareFill id="bottom-text-down" className="move-arrow" onClick={handleTextDown}/>
-                            <BsFillArrowLeftSquareFill id="bottom-text-left" className="move-arrow" onClick={handleTextLeft}/>
-                            <BsFillArrowRightSquareFill id="bottom-text-right" className="move-arrow" onClick={handleTextRight}/>
-                            <BsFillArrowUpLeftSquareFill id="bottom-text-up-left" className="move-arrow" onClick={handleTextUpLeft}/>
-                            <BsFillArrowUpRightSquareFill id="bottom-text-up-right" className="move-arrow" onClick={handleTextUpRight}/>
-                            <BsFillArrowDownLeftSquareFill id="bottom-text-down-left" className="move-arrow" onClick={handleTextDownLeft}/>
-                            <BsFillArrowDownRightSquareFill id="bottom-text-down-right" className="move-arrow" onClick={handleTextDownRight}/>
+                            <BsFillArrowDownSquareFill id="bottom-text-down" className="move-arrow"
+                                                       onClick={handleTextDown}/>
+                            <BsFillArrowLeftSquareFill id="bottom-text-left" className="move-arrow"
+                                                       onClick={handleTextLeft}/>
+                            <BsFillArrowRightSquareFill id="bottom-text-right" className="move-arrow"
+                                                        onClick={handleTextRight}/>
+                            <BsFillArrowUpLeftSquareFill id="bottom-text-up-left" className="move-arrow"
+                                                         onClick={handleTextUpLeft}/>
+                            <BsFillArrowUpRightSquareFill id="bottom-text-up-right" className="move-arrow"
+                                                          onClick={handleTextUpRight}/>
+                            <BsFillArrowDownLeftSquareFill id="bottom-text-down-left" className="move-arrow"
+                                                           onClick={handleTextDownLeft}/>
+                            <BsFillArrowDownRightSquareFill id="bottom-text-down-right" className="move-arrow"
+                                                            onClick={handleTextDownRight}/>
                             <br/>
                             <Button onClick={clear}>Clear</Button>
                             <div>
