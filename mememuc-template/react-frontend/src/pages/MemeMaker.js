@@ -31,11 +31,13 @@
  * Upload by drawing:
  * https://www.npmjs.com/package/react-canvas-draw
  * https://codesandbox.io/s/react-canvas-draw-example-forked-5vkkxo?file=/src/index.js:932-1094
- * Make texts on canvas movable (draggable):
+ * Make texts on canvas movable (draggable, not working!):
  * http://jsfiddle.net/RWCH/Lg2xagjo/
  * https://erikonarheim.com/posts/canvas-text-metrics/
  * https://stackoverflow.com/questions/4032179/how-do-i-get-the-width-and-height-of-a-html5-canvas
  * https://stackoverflow.com/questions/1134586/how-can-you-find-the-height-of-text-on-an-html-canvas
+ * Make texts on canvas movable (by buttons):
+ * https://stackoverflow.com/questions/15700452/jquery-functionevent-event-target-id-is-blank-when-clicking-linked-text
  * Change font size and color:
  * https://uiwjs.github.io/react-color/#/chrome
  * https://www.npmjs.com/package/reactjs-popup
@@ -60,6 +62,10 @@ import {BsFillArrowUpSquareFill} from "react-icons/bs";
 import {BsFillArrowDownSquareFill} from "react-icons/bs";
 import {BsFillArrowLeftSquareFill} from "react-icons/bs";
 import {BsFillArrowRightSquareFill} from "react-icons/bs";
+import {BsFillArrowUpLeftSquareFill} from "react-icons/bs";
+import {BsFillArrowUpRightSquareFill} from "react-icons/bs";
+import {BsFillArrowDownLeftSquareFill} from "react-icons/bs";
+import {BsFillArrowDownRightSquareFill} from "react-icons/bs";
 
 
 const LINK_MEME_PREFIX = 'http://localhost:3000/m/';
@@ -85,7 +91,8 @@ function MemeMaker() {
     const [bottomTextSize, setBottomTextSize] = useState('50');
     const [topTextPosX, setTopTextPosX] = useState(0);
     const [topTextPosY, setTopTextPosY] = useState(0);
-
+    const [bottomTextPosX, setBottomTextPosX] = useState(0);
+    const [bottomTextPosY, setBottomTextPosY] = useState(0);
 
     const [image, setImage] = useState(null);
     const [showUpload, setShowUpload] = useState(false);
@@ -117,6 +124,7 @@ function MemeMaker() {
     const [hexTop, setHexTop] = useState("#000000");
     const [hexBottom, setHexBottom] = useState("#000000");
 
+    const [first, setFirst] = useState(true);
 
     const handleCloseDraw = () => {
         setShowDraw(false);
@@ -160,6 +168,7 @@ function MemeMaker() {
             setTitle('');
             setAdded(false);
             setAddedImages([]);
+            setFirst(true);
         } else {
             alert('Invalid image URL!');
         }
@@ -263,6 +272,7 @@ function MemeMaker() {
         setMeme(memeImage);
         setCaption(memes[index].name);
         setTitle('');
+        setFirst(true);
     }
 
     function draw(canvas) {
@@ -275,7 +285,7 @@ function MemeMaker() {
 
             const ctx = canvas.current.getContext("2d");
             ctx.fillStyle = "white";
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+          //  ctx.clearRect(0, 0, myCanvas.width, myCanvas.height);
 
             ctx.drawImage(meme, 0, 0, myCanvas.width, myCanvas.height);
 
@@ -320,8 +330,18 @@ function MemeMaker() {
             ctx.fillStyle = "green";
             ctx.textAlign = "center";
 
-            texts.push({text: topText, x: (myCanvas.width / 2), y: 100});
-            texts.push({text: bottomText, x: (myCanvas.width / 2), y: myCanvas.height - 100});
+            if (first) {
+                texts.push({text: topText, x: (myCanvas.width / 2), y: 100});
+                texts.push({text: bottomText, x: (myCanvas.width / 2), y: myCanvas.height - 100});
+                setFirst(false);
+                setTopTextPosX(myCanvas.width / 2);
+                setTopTextPosY(100);
+                setBottomTextPosX(myCanvas.width / 2);
+                setBottomTextPosY(myCanvas.height - 100);
+            } else {
+                texts.push({text: topText, x: topTextPosX, y: topTextPosY});
+                texts.push({text: bottomText, x: bottomTextPosX, y: bottomTextPosY});
+            }
 
             // style width in canvas
             const styleCanvasWidth = myCanvas.getBoundingClientRect().width;
@@ -357,9 +377,15 @@ function MemeMaker() {
                 text.styleTextHeight = styleTextHeight;
                 text.startY = startY;
 
+                text.styleCanvasWidth = styleCanvasWidth;
+                text.styleCanvasHeight = styleCanvasHeight;
+                text.canvasHeight = myCanvas.height;
+                text.canvasWidth = myCanvas.width;
+
+
             }
 
-            // myCanvas.onmousedown = handleMouseDown;
+             //myCanvas.onmousedown = handleMouseDown;
             // myCanvas.onmousemove = handleMouseMove;
             // myCanvas.onmouseup = handleMouseUp;
             // myCanvas.onmouseout = handleMouseOut;
@@ -572,11 +598,94 @@ function MemeMaker() {
         bottomTextColorDiv.style.backgroundColor = color.hexa;
     }
 
-    const handleTopText = () => {
-        setTopTextPosY(texts[0].y -= 2);
-        console.log('topTextPosY', topTextPosY);
+    const handleTextUp = (e) => {
+        if (e.currentTarget.id === 'top-text-up' && topTextPosY > texts[0].styleTextHeight) {
+            setTopTextPosY(texts[0].y -= 5);
+        }
+        if (e.currentTarget.id === 'bottom-text-up' && bottomTextPosY > texts[1].styleTextHeight) {
+            setBottomTextPosY(texts[1].y -= 5);
+        }
     }
     
+    const handleTextDown = (e) => {
+        if (e.currentTarget.id === 'top-text-down' && topTextPosY < texts[0].canvasHeight) {
+            setTopTextPosY(texts[0].y += 5);
+        }
+        if (e.currentTarget.id === 'bottom-text-down' && bottomTextPosY < texts[1].canvasHeight) {
+            setBottomTextPosY(texts[1].y += 5);
+        }
+    }
+
+    const handleTextLeft = (e) => {
+        if (e.currentTarget.id === 'top-text-left' && topTextPosX > texts[0].styleTextWidth) {
+            setTopTextPosX(texts[0].x -= 5);
+        }
+        if (e.currentTarget.id === 'bottom-text-left' && bottomTextPosX > texts[1].styleTextWidth) {
+            setBottomTextPosX(texts[1].x -= 5);
+        }
+    }
+
+    const handleTextRight = (e) => {
+        if (e.currentTarget.id === 'top-text-right' && topTextPosX < texts[0].canvasWidth - texts[0].styleTextWidth) {
+            setTopTextPosX(texts[0].x += 5);
+        }
+        if (e.currentTarget.id === 'bottom-text-right' && bottomTextPosX < texts[1].canvasWidth - texts[1].styleTextWidth) {
+            setBottomTextPosX(texts[1].x += 5);
+        }
+    }
+
+    const handleTextUpLeft = (e) => {
+        if (e.currentTarget.id === 'top-text-up-left' &&
+            topTextPosY > texts[0].styleTextHeight && topTextPosX > texts[0].styleTextWidth) {
+            setTopTextPosY(texts[0].y -= 5);
+            setTopTextPosX(texts[0].x -= 5);
+        }
+        if (e.currentTarget.id === 'bottom-text-up-left' &&
+            bottomTextPosY > texts[1].styleTextHeight && bottomTextPosX > texts[1].styleTextWidth) {
+            setBottomTextPosY(texts[1].y -= 5);
+            setBottomTextPosX(texts[1].x -= 5);
+        }
+    }
+
+    const handleTextUpRight = (e) => {
+        if (e.currentTarget.id === 'top-text-up-right' &&
+            topTextPosY > texts[0].styleTextHeight && topTextPosX < texts[0].canvasWidth - texts[0].styleTextWidth) {
+            setTopTextPosY(texts[0].y -= 5);
+            setTopTextPosX(texts[0].x += 5);
+        }
+        if (e.currentTarget.id === 'bottom-text-up-right' &&
+            bottomTextPosY > texts[1].styleTextHeight && bottomTextPosX < texts[1].canvasWidth - texts[1].styleTextWidth) {
+            setBottomTextPosY(texts[1].y -= 5);
+            setBottomTextPosX(texts[1].x += 5);
+        }
+    }
+
+    const handleTextDownLeft = (e) => {
+        if (e.currentTarget.id === 'top-text-down-left' &&
+            topTextPosY < texts[0].canvasHeight && topTextPosX > texts[0].styleTextWidth) {
+            setTopTextPosY(texts[0].y += 5);
+            setTopTextPosX(texts[0].x -= 5);
+        }
+        if (e.currentTarget.id === 'bottom-text-down-left' &&
+            bottomTextPosY < texts[1].canvasHeight && bottomTextPosX > texts[1].styleTextWidth) {
+            setBottomTextPosY(texts[1].y += 5);
+            setBottomTextPosX(texts[1].x -= 5);
+        }
+    }
+
+    const handleTextDownRight = (e) => {
+        if (e.currentTarget.id === 'top-text-down-right' &&
+            topTextPosY < texts[0].canvasHeight && topTextPosX < texts[0].canvasWidth - texts[0].styleTextWidth) {
+            setTopTextPosY(texts[0].y += 5);
+            setTopTextPosX(texts[0].x += 5);
+        }
+        if (e.currentTarget.id === 'bottom-text-down-right' &&
+            bottomTextPosY < texts[1].canvasHeight && bottomTextPosX < texts[1].canvasWidth - texts[1].styleTextWidth) {
+            setBottomTextPosY(texts[1].y += 5);
+            setBottomTextPosX(texts[1].x += 5);
+        }
+    }
+
     return (
         <div>
             <div className="template-area">
@@ -591,6 +700,7 @@ function MemeMaker() {
                                       memeImage.src = template.url.toString();
                                       setMeme(memeImage);
                                       setCaption(template.name);
+                                      setFirst(true);
                                       setTitle('');
                                       setAdded(false);
                                       setAddedImages([]);
@@ -656,10 +766,15 @@ function MemeMaker() {
                             />
                             <br/>
                             Click to move text
-                            <BsFillArrowUpSquareFill id="top-text-up" className="move-arrow" onClick={handleTopText}/>
-                            <BsFillArrowDownSquareFill id="top-text-down" className="move-arrow"/>
-                            <BsFillArrowLeftSquareFill id="top-text-left" className="move-arrow"/>
-                            <BsFillArrowRightSquareFill id="top-text-right" className="move-arrow"/>
+                            <BsFillArrowUpSquareFill id="top-text-up" className="move-arrow" onClick={handleTextUp}/>
+                            <BsFillArrowDownSquareFill id="top-text-down" className="move-arrow" onClick={handleTextDown}/>
+                            <BsFillArrowLeftSquareFill id="top-text-left" className="move-arrow" onClick={handleTextLeft}/>
+                            <BsFillArrowRightSquareFill id="top-text-right" className="move-arrow" onClick={handleTextRight}/>
+                            <BsFillArrowUpLeftSquareFill id="top-text-up-left" className="move-arrow" onClick={handleTextUpLeft}/>
+                            <BsFillArrowUpRightSquareFill id="top-text-up-right" className="move-arrow" onClick={handleTextUpRight}/>
+                            <BsFillArrowDownLeftSquareFill id="top-text-down-left" className="move-arrow" onClick={handleTextDownLeft}/>
+                            <BsFillArrowDownRightSquareFill id="top-text-down-right" className="move-arrow" onClick={handleTextDownRight}/>
+
                             <div className="text-area">
                                 <input
                                     placeholder="bottom text"
@@ -686,10 +801,14 @@ function MemeMaker() {
                             />
                             <br/>
                             Click to move text
-                            <BsFillArrowUpSquareFill id="bottom-text-up" className="move-arrow"/>
-                            <BsFillArrowDownSquareFill id="bottom-text-down" className="move-arrow"/>
-                            <BsFillArrowLeftSquareFill id="bottom-text-left" className="move-arrow"/>
-                            <BsFillArrowRightSquareFill id="bottom-text-right" className="move-arrow"/>
+                            <BsFillArrowUpSquareFill id="bottom-text-up" className="move-arrow" onClick={handleTextUp}/>
+                            <BsFillArrowDownSquareFill id="bottom-text-down" className="move-arrow" onClick={handleTextDown}/>
+                            <BsFillArrowLeftSquareFill id="bottom-text-left" className="move-arrow" onClick={handleTextLeft}/>
+                            <BsFillArrowRightSquareFill id="bottom-text-right" className="move-arrow" onClick={handleTextRight}/>
+                            <BsFillArrowUpLeftSquareFill id="bottom-text-up-left" className="move-arrow" onClick={handleTextUpLeft}/>
+                            <BsFillArrowUpRightSquareFill id="bottom-text-up-right" className="move-arrow" onClick={handleTextUpRight}/>
+                            <BsFillArrowDownLeftSquareFill id="bottom-text-down-left" className="move-arrow" onClick={handleTextDownLeft}/>
+                            <BsFillArrowDownRightSquareFill id="bottom-text-down-right" className="move-arrow" onClick={handleTextDownRight}/>
                             <br/>
                             <Button onClick={clear}>Clear</Button>
                             <div>
