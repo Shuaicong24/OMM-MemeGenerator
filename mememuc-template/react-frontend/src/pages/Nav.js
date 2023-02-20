@@ -77,6 +77,7 @@ class NavigationBar extends React.Component {
                                 {
                                     window.localStorage.getItem("logStatus") === "logged" &&
                                     <NavDropdown title={localStorage.getItem("loggedUsername")}>
+                                        <NavDropdown.Item href="/profile">Profile</NavDropdown.Item>
                                         <NavDropdown.Item href="/my-history">My History</NavDropdown.Item>
                                         <NavDropdown.Item href="/" onClick={this.handleSignOut}>Log
                                             Out</NavDropdown.Item>

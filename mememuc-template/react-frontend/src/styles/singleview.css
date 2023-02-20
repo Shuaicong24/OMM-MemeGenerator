@@ -9,7 +9,8 @@ h4 {
 
 .comment_block {
     width: 80%;
-    margin: 10px auto;  /*set div center*/
+    /*set div center*/
+    margin: 10px auto 100px;
 }
 
 .comment {
@@ -24,4 +25,36 @@ h4 {
 .btn_comment {
     display: flex;
     float: right;
+}
+
+.comments {
+    width: 80%;
+    margin: auto;
+    text-align: left;
+}
+
+.single_comment {
+    width: 80%;
+    margin: 10px auto;
+    border: 1px solid lightgray;
+    display: inline-block;
+    padding: 5px;
+}
+
+.strict {
+    line-break: strict;
+    text-align: left;
+    padding: 2px;
+
+}
+
+p {
+    word-break: break-all;
+    margin-bottom: 0;
+}
+
+.from_someone {
+    font-size: 12px;
+    float: right;
+    padding: 2px;
 }

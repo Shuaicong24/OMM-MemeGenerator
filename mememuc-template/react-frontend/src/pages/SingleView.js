@@ -2,6 +2,8 @@
  * References:
  * https://www.pluralsight.com/guides/how-to-use-multiline-text-area-in-reactjs
  * https://medium.com/@s.alexis/using-react-router-useparams-to-fetch-data-dynamically-13288e24ed1
+ * Css line break:
+ * https://css-tricks.com/almanac/properties/l/line-break/
  * */
 
 import React, {useEffect, useState} from 'react';
@@ -15,15 +17,16 @@ function SingleView() {
     const {id} = useParams();
     const [data, setData] = useState([]);
     const [publicData, setPublicData] = useState([]);
-    const [inputValue, setInputValue] = useState('');
+    const [comment, setComment] = useState('');
     const [currentIndex, setCurrentIndex] = useState(-1);
-
     const [showLogin, setShowLogin] = useState(false);
+    const [comments, setComments] = useState([]);
 
 
     useEffect(() => {
         fetchAllData();
         fetchPublicData();
+        getCommentsByUrl(`http://localhost:3000/m/${id}`);
     }, [])
 
     const fetchAllData = () => {
@@ -136,15 +139,6 @@ function SingleView() {
             setShowLogin(true);
         }
     }
-    const handleComment = (e) => {
-
-        const comment = document.getElementById('comment');
-       // setInputValue('ssd');
-       //  if (localStorage.getItem("logStatus") === 'notLogged') {
-       //      e.target.value = '';
-       //      setShowLogin(true);
-       //  }
-    }
 
     const handleCloseLogin = () => {
         setShowLogin(false);
@@ -169,10 +163,70 @@ function SingleView() {
         );
     }
 
-    const handelPostComment = () => {
+    const Comment = ({comment}) => {
+        return (
+            <div className="single_comment">
+                <p className="strict">{comment.content}</p>
+                <div>
+                    <span className="from_someone">from {comment.from}</span>
+                </div>
+            </div>
+        );
 
     }
+    const handelPostComment = () => {
+        if (localStorage.getItem("logStatus") === 'notLogged') {
+            setShowLogin(true);
+        } else {
+            let to = '';
+            const url = `http://localhost:3000/m/${id}`;
+            const from = localStorage.getItem('loggedUsername');
+            console.log('Comment data');
+            console.log(`http://localhost:3000/m/${id}`);
+            console.log(localStorage.getItem('loggedUsername'));
+            data.map(meme => {
+                if (meme.url === `http://localhost:3000/m/${id}`) {
+                    console.log(meme.author);
+                    to = meme.author;
+                }
+            })
+            console.log(comment);
 
+            fetch("http://localhost:3002/memes/upload-comment", {
+                method: "POST",
+                crossDomain: true,
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                },
+                body: JSON.stringify({
+                    url,
+                    from,
+                    to,
+                    comment
+                }),
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    console.log(data, "memeComment");
+                     if (data.status === "ok") {
+                         alert("Comment successful");
+                         setComment('');
+                         getCommentsByUrl(`http://localhost:3000/m/${id}`);
+                     }
+                });
+        }
+    }
+
+    const getCommentsByUrl = (url) => {
+        fetch(`http://localhost:3002/memes/get-comments-for-a-meme/?url=${url}`)
+            .then((res) => res.json())
+            .then((data) => {
+                setComments(data);
+                console.log(data, "getCommentsByUrl");
+            });
+    }
     return (
         <div>
             {data && data.map(meme =>
@@ -186,15 +240,20 @@ function SingleView() {
                     <textarea className='comment'
                             placeholder={'Please comment here...'}
                             id={meme.url}
+                              value={comment}
                             onClick={handleCheckLogin}
-                            onChange={handleComment}
+                            onChange={e => setComment(e.target.value)}
                     />
                     <Button className="btn_comment" onClick={handelPostComment}>
                         Post comment
                     </Button>
-
                 </div>
             )}
+
+            <h4 className="comments">Comments</h4>
+            {comments && comments.map(comment =>
+                <Comment key={comment.date}
+                    comment={comment}/>)}
 
             <Modal show={showLogin} onHide={handleCloseLogin}>
                 <Modal.Header closeButton>

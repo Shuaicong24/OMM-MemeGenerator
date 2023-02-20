@@ -4,6 +4,8 @@ const MemeCommentSchema = new mongoose.Schema(
         url: {type: String, required: true},
         from: {type: String, required: true},
         to: {type: String, required: true},
+        content: {type: String, required: true},
+        date: {type: String, required: true},
     },
     {
         // Define the collection name stored in MongoDB Compass

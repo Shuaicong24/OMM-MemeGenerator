@@ -10,10 +10,10 @@ import Login from './pages/Login';
 import Overview from './pages/Overview';
 import Signup from './pages/Signup';
 import Navbar from './pages/Nav';
-import LoggedIn from "./pages/LoggedIn";
 import MemeMaker from "./pages/MemeMaker";
 import SingleView from "./pages/SingleView";
 import History from "./pages/History";
+import Profile from "./pages/Profile";
 
 function App() {
     return (
@@ -24,10 +24,10 @@ function App() {
                 <Route path='/sign-in' element={<Login/>}/>
                 <Route path='/' element={<Overview/>}/>
                 <Route path='/sign-up' element={<Signup/>}/>
-                <Route path='/userDetails' element={<LoggedIn/>}/>
                 <Route path='/mememaker' element={<MemeMaker/>}/>
                 <Route path='/m/:id' element={<SingleView/>}/>
                 <Route path='/my-history' element={<History/>}/>
+                <Route path='/profile' element={<Profile/>}/>
             </Routes>
         </div>
     );

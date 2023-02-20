@@ -38,6 +38,9 @@ class Signup extends React.Component {
             .then((res) => res.json())
             .then((data) => {
                 console.log(data, "userRegister");
+                if (data.status === "ok") {
+                    alert("Sign up successful");
+                }
             });
     }
 

@@ -28,6 +28,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({storage: storage});
 const memeModel = require("../models/meme");
+const commentModel = require("../models/comment");
 
 router.post("/upload-meme", upload.single("file"), async (req, res) => {
     console.log(req.file);
@@ -118,6 +119,41 @@ router.get("/get-public-memes-sort-by-date-in-one-day", async function (req, res
         .catch((error) => {
             res.status(500).send(error);
         });
+});
+
+router.post("/upload-comment", async function (req, res) {
+    console.log('comment data: ', req.body);
+    const comment = new commentModel({
+        url: req.body.url,
+        from: req.body.from,
+        to: req.body.to,
+        content: req.body.comment,
+        date: Date.now(),
+    });
+
+    try {
+        await comment.save();
+        res.send({status: "ok"});
+    } catch (error) {
+        res.send({status: "error"});
+    }
+});
+
+router.get("/get-comments-for-a-meme", async function (req, res, next) {
+    console.log('Get comments for a certain meme');
+    if (req.query.url) {
+        const param = req.query.url;
+        console.log('Meme url: ', param);
+
+        commentModel.find({url: param.toString()}).sort({date: -1})
+            .then((data) => {
+                console.log(`Comments by meme using url=${param}: ${data}`);
+                res.send(data);
+            })
+            .catch((error) => {
+                res.status(500).send(error);
+            });
+    }
 });
 
 module.exports = router;
