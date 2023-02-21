@@ -14,6 +14,8 @@ import MemeMaker from "./pages/MemeMaker";
 import SingleView from "./pages/SingleView";
 import History from "./pages/History";
 import Profile from "./pages/Profile";
+import MyComments from "./pages/MyComments";
+import Api from "./pages/Api";
 
 function App() {
     return (
@@ -26,8 +28,10 @@ function App() {
                 <Route path='/sign-up' element={<Signup/>}/>
                 <Route path='/mememaker' element={<MemeMaker/>}/>
                 <Route path='/m/:id' element={<SingleView/>}/>
-                <Route path='/my-history' element={<History/>}/>
+                <Route path='/my-memes' element={<History/>}/>
                 <Route path='/profile' element={<Profile/>}/>
+                <Route path='/my-comments' element={<MyComments/>}/>
+                <Route path='/api' element={<Api/>}/>
             </Routes>
         </div>
     );

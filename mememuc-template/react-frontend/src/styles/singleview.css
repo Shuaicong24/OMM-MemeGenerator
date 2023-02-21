@@ -23,12 +23,12 @@ h4 {
 }
 
 .btn_comment {
-    display: flex;
     float: right;
 }
 
 .comments {
-    width: 80%;
+    position: relative;
+    top: 100px;
     margin: auto;
     text-align: left;
 }

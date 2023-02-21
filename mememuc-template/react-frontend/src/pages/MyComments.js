@@ -5,19 +5,29 @@ import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 
-class Profile extends React.Component {
+class MyComments extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            username: "",
-            memes: [],
+            comments: [],
         };
+        this.getCommentsByLoggedInUser = this.getCommentsByLoggedInUser.bind(this);
 
     }
 
     componentDidMount() {
+    }
+
+    getCommentsByLoggedInUser = () => {
         const loggedUsername = localStorage.getItem("loggedUsername");
+
+        fetch(`http://localhost:3002/user/get-comments-for-someone/?username=${loggedUsername}`)
+            .then((res) => res.json())
+            .then((data) => {
+                this.setState({comments: data});
+                console.log(data, "getCommentsByUser");
+            });
     }
 
     render() {
@@ -37,4 +47,4 @@ class Profile extends React.Component {
     }
 }
 
-export default Profile;
+export default MyComments;

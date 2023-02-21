@@ -20,6 +20,7 @@ class History extends React.Component {
         this.state = {
             username: "",
             memes: [],
+            isEmpty: -1,
         };
 
         this.getMemesByUser = this.getMemesByUser.bind(this);
@@ -35,11 +36,18 @@ class History extends React.Component {
     getMemesByUser(username) {
         console.log(username, ', username');
 
+
         fetch(`http://localhost:3002/memes/get-memes/?username=${username}`)
             .then((res) => res.json())
             .then((data) => {
                 this.setState({memes: data});
+                if (data.length !== 0) {
+                    this.setState({isEmpty: 1});
+                } else {
+                    this.setState({isEmpty: 0});
+                }
                 console.log( this.state.memes.length);
+                console.log( this.state.isEmpty);
                 console.log(data, "getMemeBySomeone");
             });
 
@@ -72,19 +80,20 @@ class History extends React.Component {
                 <Navbar className="top">
                     <Container>
                         <Nav className="me-auto">
-                            <Nav.Link href="/#my=profile">Profile</Nav.Link>
-                            <Nav.Link href="/#my=memes">My Memes</Nav.Link>
-                            <Nav.Link href="/#my=comments">My Comments</Nav.Link>
+                            <Nav.Link href="/profile">Profile</Nav.Link>
+                            <Nav.Link href="/my-memes">My Memes</Nav.Link>
+                            <Nav.Link href="/my-comments">My Comments</Nav.Link>
                         </Nav>
                     </Container>
                 </Navbar>
 
-                {this.state.memes.length === 0 && <p className="no-meme-text">You haven't created any memes yet, try to create some with one of the generators in the "Create" dropdown using your creativity!</p>}
-                {this.state.memes.length > 0 && this.state.memes.map(meme => {
+                {this.state.isEmpty === 1 && this.state.memes.map(meme => {
                    return <this.Meme key={meme.url}
                           meme={meme}
                     />
                 })}
+                {this.state.isEmpty === 0 && <p className="no-meme-text">
+                    You haven't created any memes yet,<br/> try to create some with one of the generators in the "Create" dropdown using your creativity!</p>}
             </div>
         );
     }

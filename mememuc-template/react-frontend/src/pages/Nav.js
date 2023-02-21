@@ -1,6 +1,7 @@
 /**
  * References for Navbar:
  * https://react-bootstrap.github.io/components/navbar/
+ * https://github.com/react-bootstrap/react-bootstrap/issues/4149
  * */
 
 import React from "react";
@@ -65,6 +66,7 @@ class NavigationBar extends React.Component {
                             </Form>
                         </Nav>
                         <Nav id="navbar">
+                            <Nav.Link href="/api">Api</Nav.Link>
                             <Nav.Link href="/about">About</Nav.Link>
                             <Nav>
                                 {
@@ -76,9 +78,8 @@ class NavigationBar extends React.Component {
                                 }
                                 {
                                     window.localStorage.getItem("logStatus") === "logged" &&
-                                    <NavDropdown title={localStorage.getItem("loggedUsername")}>
+                                    <NavDropdown align="end" title={localStorage.getItem("loggedUsername")}>
                                         <NavDropdown.Item href="/profile">Profile</NavDropdown.Item>
-                                        <NavDropdown.Item href="/my-history">My History</NavDropdown.Item>
                                         <NavDropdown.Item href="/" onClick={this.handleSignOut}>Log
                                             Out</NavDropdown.Item>
                                     </NavDropdown>

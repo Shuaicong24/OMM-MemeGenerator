@@ -3,6 +3,7 @@ h1 {
 }
 
 .no-meme-text {
-    margin-top: 50px;
-    font-size: 25px;
+    width: 80%;
+    margin: 50px auto;
+    font-size: 20px;
 }

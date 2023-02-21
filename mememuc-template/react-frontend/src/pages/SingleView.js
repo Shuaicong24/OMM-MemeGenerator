@@ -227,6 +227,7 @@ function SingleView() {
                 console.log(data, "getCommentsByUrl");
             });
     }
+
     return (
         <div>
             {data && data.map(meme =>
@@ -245,12 +246,12 @@ function SingleView() {
                             onChange={e => setComment(e.target.value)}
                     />
                     <Button className="btn_comment" onClick={handelPostComment}>
-                        Post comment
+                            Post comment
                     </Button>
+                    <h4 className="comments">Comments</h4>
                 </div>
             )}
 
-            <h4 className="comments">Comments</h4>
             {comments && comments.map(comment =>
                 <Comment key={comment.date}
                     comment={comment}/>)}
