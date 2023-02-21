@@ -19,10 +19,12 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import "../styles/overview.css";
 
+
 function Overview() {
     const [data, setData] = useState([]);
     const [sort, setSort] = useState('default');
-    const [index, setIndex] = useState(0);
+    const [comments, setComments] = useState([]);
+    const array = [];
 
     useEffect(() => {
         const url = window.location.href;
@@ -83,22 +85,13 @@ function Overview() {
         );
     }
 
-    function loadImages(numPost = 10) {
-        const container = document.getElementById("container");
-        let i = 0;
-        while (i < numPost) {
-            const img = document.createElement('img');
-            img.src = 'http://5b0988e595225.cdn.sohucs.com/images/20200513/d483e2636be940019ef502a47f33c18a.jpeg';
-            container.appendChild(img);
-            i++;
-        }
+    const Comment = ({comment}) => {
+        return (
+            <div key={comment.toString()}>
+                {comment.number}
+            </div>
+        );
     }
-
-    // window.addEventListener('scroll', () => {
-    //     if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight) {
-    //         loadImages();
-    //     }
-    // });
 
     const fetchPublicMemesSortByDefault = () => {
         fetch("http://localhost:3002/memes/get-public-memes")
@@ -106,6 +99,12 @@ function Overview() {
             .then((data) => {
                 setData(data);
                 console.log(data, "getMeme");
+                data.map(meme => {
+                    getCommentsByUrl(meme.url);
+                });
+                setComments(array);
+
+                console.log(comments, ", comments");
             });
     }
 
@@ -126,6 +125,7 @@ function Overview() {
                 console.log(data, "getMeme");
             });
     }
+
     const fetchPublicMemesSortByDateInOneDay = () => {
         fetch("http://localhost:3002/memes/get-public-memes-sort-by-date-in-one-day")
             .then((res) => res.json())
@@ -134,6 +134,17 @@ function Overview() {
                 console.log(data, "getMeme");
             });
     }
+
+    const getCommentsByUrl = (url) => {
+        fetch(`http://localhost:3002/memes/get-comments-for-a-meme/?url=${url}`)
+            .then((res) => res.json())
+            .then((data) => {
+                array.push({url: url, number: data.length});
+                console.log(data, "getCommentsOnOverview");
+            });
+    }
+
+
     return (
         <div>
             <Navbar className="top">
