@@ -11,6 +11,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const notifier = require("node-notifier");
 const jwt = require("jsonwebtoken");
+const commentModel = require("../models/comment");
 const User = mongoose.model("UserInfo");
 // Expiration time: Thu June 01 2023 00:00:00 GMT+2 (Central European Summer Time)
 const JWT_SECRET =
@@ -80,7 +81,7 @@ router.post("/userData", async (req, res) => {
             return res;
         });
         console.log(user);
-        if (user == "token expired") {
+        if (user === "token expired") {
             return res.send({status: "error", data: "token expired"});
         }
 
@@ -93,6 +94,23 @@ router.post("/userData", async (req, res) => {
                 res.send({status: "error", data: error});
             });
     } catch (error) {
+    }
+});
+
+router.get("/get-comments-for-someone", async function (req, res, next) {
+    console.log('Get comments for someone');
+    if (req.query.username) {
+        const param = req.query.username;
+        console.log('Query username: ', param);
+
+        commentModel.find({from: param.toString()}).sort({date: -1})
+            .then((data) => {
+                console.log(`Comments by someone from=${param}: ${data}`);
+                res.send(data);
+            })
+            .catch((error) => {
+                res.status(500).send(error);
+            });
     }
 });
 

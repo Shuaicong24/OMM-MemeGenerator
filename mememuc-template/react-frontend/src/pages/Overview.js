@@ -52,15 +52,15 @@ function Overview() {
     }
 
     const handleLatest = () => {
-       setSort("latest");
-       fetchPublicMemesSortByDate();
+        setSort("latest");
+        fetchPublicMemesSortByDate();
     }
 
     const handleTitle = () => {
         setSort("title");
         fetchPublicMemesSortByTitle();
     }
-    
+
     const handleLatestOneDay = () => {
         setSort("latest-one-day");
         fetchPublicMemesSortByDateInOneDay();
@@ -145,9 +145,8 @@ function Overview() {
                         <NavDropdown
                             title="Sort by"
                             menuVariant="light">
-                            <NavDropdown.Item href="/#sort=votes">Votes</NavDropdown.Item>
-                            <NavDropdown.Item href="/#sort=views">Views</NavDropdown.Item>
-                            <NavDropdown.Item href="/#sort=latest-1d" onClick={handleLatestOneDay}>New <span style={{'fontSize': '13px'}}>past 24h</span></NavDropdown.Item>
+                            <NavDropdown.Item href="/#sort=latest-1d" onClick={handleLatestOneDay}>New <span
+                                style={{'fontSize': '13px'}}>past 24h</span></NavDropdown.Item>
                         </NavDropdown>
                     </Nav>
                 </Container>

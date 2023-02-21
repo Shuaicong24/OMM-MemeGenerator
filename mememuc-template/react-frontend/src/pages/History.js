@@ -11,14 +11,12 @@ import "../styles/overview.css";
 import Navbar from "react-bootstrap/Navbar";
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
-import NavDropdown from "react-bootstrap/NavDropdown";
 
 class History extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            username: "",
             memes: [],
             isEmpty: -1,
         };
@@ -34,9 +32,6 @@ class History extends React.Component {
     }
 
     getMemesByUser(username) {
-        console.log(username, ', username');
-
-
         fetch(`http://localhost:3002/memes/get-memes/?username=${username}`)
             .then((res) => res.json())
             .then((data) => {
@@ -46,11 +41,10 @@ class History extends React.Component {
                 } else {
                     this.setState({isEmpty: 0});
                 }
-                console.log( this.state.memes.length);
-                console.log( this.state.isEmpty);
+                console.log(this.state.memes.length);
+                console.log(this.state.isEmpty);
                 console.log(data, "getMemeBySomeone");
             });
-
     }
 
     handleMeme() {
@@ -76,7 +70,6 @@ class History extends React.Component {
     render() {
         return (
             <div>
-
                 <Navbar className="top">
                     <Container>
                         <Nav className="me-auto">
@@ -88,12 +81,13 @@ class History extends React.Component {
                 </Navbar>
 
                 {this.state.isEmpty === 1 && this.state.memes.map(meme => {
-                   return <this.Meme key={meme.url}
-                          meme={meme}
+                    return <this.Meme key={meme.url}
+                                      meme={meme}
                     />
                 })}
-                {this.state.isEmpty === 0 && <p className="no-meme-text">
-                    You haven't created any memes yet,<br/> try to create some with one of the generators in the "Create" dropdown using your creativity!</p>}
+                {this.state.isEmpty === 0 && <p className="no-data-text">
+                    You haven't created any memes yet,<br/> try to create some with one of the generators in the
+                    "Create" dropdown using your creativity!</p>}
             </div>
         );
     }

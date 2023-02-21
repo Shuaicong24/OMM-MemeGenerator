@@ -164,16 +164,21 @@ function SingleView() {
     }
 
     const Comment = ({comment}) => {
+        const date = new Date();
+        date.setTime(comment.date);
+
         return (
             <div className="single_comment">
                 <p className="strict">{comment.content}</p>
                 <div>
-                    <span className="from_someone">from {comment.from}</span>
+                    <span className="from_someone">from {comment.from},
+                        on {date.getFullYear()}-{date.getMonth()}-{date.getDate()},
+                        at {date.getHours()}:{date.getMinutes()}:{date.getSeconds()}</span>
                 </div>
             </div>
         );
-
     }
+
     const handelPostComment = () => {
         if (localStorage.getItem("logStatus") === 'notLogged') {
             setShowLogin(true);
@@ -210,11 +215,11 @@ function SingleView() {
                 .then((res) => res.json())
                 .then((data) => {
                     console.log(data, "memeComment");
-                     if (data.status === "ok") {
-                         alert("Comment successful");
-                         setComment('');
-                         getCommentsByUrl(`http://localhost:3000/m/${id}`);
-                     }
+                    if (data.status === "ok") {
+                        alert("Comment successful");
+                        setComment('');
+                        getCommentsByUrl(`http://localhost:3000/m/${id}`);
+                    }
                 });
         }
     }
@@ -239,14 +244,14 @@ function SingleView() {
                 meme.url === `http://localhost:3000/m/${id}` &&
                 <div className='comment_block' key={meme.url}>
                     <textarea className='comment'
-                            placeholder={'Please comment here...'}
-                            id={meme.url}
+                              placeholder={'Please comment here...'}
+                              id={meme.url}
                               value={comment}
-                            onClick={handleCheckLogin}
-                            onChange={e => setComment(e.target.value)}
+                              onClick={handleCheckLogin}
+                              onChange={e => setComment(e.target.value)}
                     />
                     <Button className="btn_comment" onClick={handelPostComment}>
-                            Post comment
+                        Post comment
                     </Button>
                     <h4 className="comments">Comments</h4>
                 </div>
@@ -254,7 +259,7 @@ function SingleView() {
 
             {comments && comments.map(comment =>
                 <Comment key={comment.date}
-                    comment={comment}/>)}
+                         comment={comment}/>)}
 
             <Modal show={showLogin} onHide={handleCloseLogin}>
                 <Modal.Header closeButton>

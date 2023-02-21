@@ -50,20 +50,7 @@ class NavigationBar extends React.Component {
                         >
                             <NavDropdown title="Create" id="navbarScrollingDropdown">
                                 <NavDropdown.Item href="/mememaker">Make a Meme</NavDropdown.Item>
-                                <NavDropdown.Item href="/gifmaker">Make a Gif</NavDropdown.Item>
-                                <NavDropdown.Item href="/videomaker">Make a Video</NavDropdown.Item>
                             </NavDropdown>
-
-
-                            <Form className="d-flex">
-                                <Form.Control
-                                    type="search"
-                                    placeholder="Search"
-                                    className="me-2"
-                                    aria-label="Search"
-                                />
-                                <Button variant="light">Search</Button>
-                            </Form>
                         </Nav>
                         <Nav id="navbar">
                             <Nav.Link href="/api">Api</Nav.Link>
