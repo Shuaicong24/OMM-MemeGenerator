@@ -1,0 +1,68 @@
+.api {
+    width: 80%;
+    margin: 10px auto;  /*set div center*/
+    border-color: lightgray;
+    border-style: solid;
+    border-width: 1px;
+    padding-bottom: 30px;
+}
+
+.api_caption {
+    margin-top: 20px;
+    margin-left: 3%;
+    font-size: 35px;
+    text-align: left;
+}
+
+.line {
+    margin: auto auto 20px;
+    width: 95%;
+    height: 1px;
+    background: lightgray;
+}
+
+.text {
+    width: 95%;
+    margin: 10px auto auto 3%;
+    text-align: left;
+}
+
+.bold-text {
+    width: 95%;
+    margin: 10px auto auto 3%;
+    text-align: left;
+    font-weight: bold;
+}
+
+.title {
+    margin-top: 50px;
+    margin-left: 3%;
+    font-size: 20px;
+    text-align: left;
+}
+
+.table {
+    padding: 2px;
+    width: 95%;
+    margin: 5px auto;
+}
+
+table {
+    border-spacing: 0;
+    border: 1px solid black;
+}
+
+th, td {
+    margin: 0;
+    border: 1px solid black;
+    text-align: center;
+    font-size: 15px;
+}
+
+.a-span {
+    margin-left: 30px;
+}
+
+.b-span {
+    margin-left: 60px;
+}

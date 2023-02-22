@@ -16,6 +16,7 @@ import History from "./pages/History";
 import Profile from "./pages/Profile";
 import MyComments from "./pages/MyComments";
 import Api from "./pages/Api";
+import Statistics from "./pages/Statistics";
 
 function App() {
     return (
@@ -32,6 +33,7 @@ function App() {
                 <Route path='/profile' element={<Profile/>}/>
                 <Route path='/my-comments' element={<MyComments/>}/>
                 <Route path='/api' element={<Api/>}/>
+                <Route path='/statistics' element={<Statistics/>}/>
             </Routes>
         </div>
     );

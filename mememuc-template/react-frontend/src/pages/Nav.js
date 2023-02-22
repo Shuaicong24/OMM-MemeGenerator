@@ -53,6 +53,7 @@ class NavigationBar extends React.Component {
                             </NavDropdown>
                         </Nav>
                         <Nav id="navbar">
+                            <Nav.Link href="/statistics">Statistics</Nav.Link>
                             <Nav.Link href="/api">Api</Nav.Link>
                             <Nav.Link href="/about">About</Nav.Link>
                             <Nav>

@@ -20,5 +20,7 @@ react-frontend:
 7. react-canvas-draw - draw on canvas 
 8. react-icons - icons
 9. react-router-dom - navigation
-10. reactjs-popup - popup component
+10. react-table - table
+11. reactjs-popup - popup component
+12. recharts - charts
 

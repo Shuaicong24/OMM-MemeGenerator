@@ -30,9 +30,10 @@ db.once("open", function () {
     console.log("MongoDB connected successfully");
 });
 
+var apisRouter = require('./routes/apis');
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 var memesRouter = require("./routes/memes");
+var usersRouter = require('./routes/users');
 
 var app = express();
 
@@ -49,8 +50,9 @@ app.use(cookieParser());
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/apis', apisRouter);
 app.use('/memes', memesRouter);
+app.use('/users', usersRouter);
 
 app.listen(3002, () => {
     console.log("Server is running at port 3002");
