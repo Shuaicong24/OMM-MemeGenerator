@@ -445,8 +445,28 @@ function MemeMaker() {
     }
 
     function clear() {
+        const myCanvas = canvasRef.current;
+
         setTopText('');
+        setTopTextSize('50');
+        setTopTextPosX(myCanvas.width / 2);
+        setTopTextPosY(100);
+        setHexTop("#000000");
+        document.getElementById('top-text-color').style.backgroundColor = "#000000";
+
+        setMiddleText('');
+        setMiddleTextSize('50');
+        setMiddleTextPosX(myCanvas.width / 2);
+        setMiddleTextPosY(myCanvas.height / 2);
+        setHexMiddle("#000000");
+        document.getElementById('middle-text-color').style.backgroundColor = "#000000";
+
         setBottomText('');
+        setBottomTextSize('50');
+        setBottomTextPosX(myCanvas.width / 2);
+        setBottomTextPosY(myCanvas.height - 100);
+        setHexBottom("#000000");
+        document.getElementById('bottom-text-color').style.backgroundColor = "#000000";
     }
 
     function handleLink() {
