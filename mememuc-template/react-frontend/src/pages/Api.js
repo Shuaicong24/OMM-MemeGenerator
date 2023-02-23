@@ -39,12 +39,12 @@ function Api() {
         })
 
         return (
-            <table {...getTableProps()} className="table">
+            <table {...getTableProps()} className="para-table">
                 <thead>
                 {headerGroups.map(headerGroup => (
                     <tr {...headerGroup.getHeaderGroupProps()}>
                         {headerGroup.headers.map(column => (
-                            <th {...column.getHeaderProps()}>{column.render('Header')}</th>
+                            <th {...column.getHeaderProps()} className="para-th">{column.render('Header')}</th>
                         ))}
                     </tr>
                 ))}
@@ -55,7 +55,7 @@ function Api() {
                     return (
                         <tr {...row.getRowProps()}>
                             {row.cells.map(cell => {
-                                return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                                return <td {...cell.getCellProps()} className="para-td">{cell.render('Cell')}</td>
                             })}
                         </tr>
                     )
