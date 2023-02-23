@@ -11,8 +11,9 @@ import '../styles/singleview.css';
 import {useParams} from 'react-router-dom';
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import {Label, Line, LineChart, Tooltip, XAxis, YAxis} from "recharts";
 
-function SingleView() {
+function SingleView()   {
     // localhost:3000/m/:id
     const {id} = useParams();
     const [data, setData] = useState([]);
@@ -21,6 +22,9 @@ function SingleView() {
     const [currentIndex, setCurrentIndex] = useState(-1);
     const [showLogin, setShowLogin] = useState(false);
     const [comments, setComments] = useState([]);
+
+    const [result, setResult] = useState([]);
+    const [isEmpty, setIsEmpty] = useState(-1);
 
     useEffect(() => {
         fetchAllData();
@@ -38,6 +42,7 @@ function SingleView() {
             default:
                 fetchPublicDataByDefault();
         }
+        getCommentsByUrlSortByDate(`http://localhost:3000/m/${id}`);
         getCommentsByUrl(`http://localhost:3000/m/${id}`);
     }, [])
 
@@ -236,41 +241,100 @@ function SingleView() {
             })
             console.log(comment);
 
-            fetch("http://localhost:3002/memes/upload-comment", {
-                method: "POST",
-                crossDomain: true,
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                },
-                body: JSON.stringify({
-                    url,
-                    from,
-                    to,
-                    comment
-                }),
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    console.log(data, "memeComment");
-                    if (data.status === "ok") {
-                        alert("Comment successful");
-                        setComment('');
-                        getCommentsByUrl(`http://localhost:3000/m/${id}`);
-                    }
-                });
+            if (comment !== '') {
+                fetch("http://localhost:3002/memes/upload-comment", {
+                    method: "POST",
+                    crossDomain: true,
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                        "Access-Control-Allow-Origin": "*",
+                    },
+                    body: JSON.stringify({
+                        url,
+                        from,
+                        to,
+                        comment
+                    }),
+                })
+                    .then((res) => res.json())
+                    .then((data) => {
+                        console.log(data, "memeComment");
+                        if (data.status === "ok") {
+                            alert("Comment successful");
+                            setComment('');
+                            getCommentsByUrlSortByDate(`http://localhost:3000/m/${id}`);
+                            getCommentsByUrl(`http://localhost:3000/m/${id}`);
+                        }
+                    });
+            } else {
+                alert("Comment is empty");
+            }
+
         }
     }
 
-    const getCommentsByUrl = (url) => {
-        fetch(`http://localhost:3002/memes/get-comments-for-a-meme/?url=${url}`)
+    const getCommentsByUrlSortByDate = (url) => {
+        fetch(`http://localhost:3002/memes/get-comments-for-a-meme-sort-by-date/?url=${url}`)
             .then((res) => res.json())
             .then((data) => {
                 setComments(data);
-                console.log(data, "getCommentsByUrl");
+                console.log(data, "getCommentsByUrlSortByDate");
             });
     }
+
+    const getCommentsByUrl = (url) => {
+        let commentArray = [{date: '', times: 0}];
+        fetch(`http://localhost:3002/memes/get-comments-for-a-meme/?url=${url}`)
+            .then((res) => res.json())
+            .then((data) => {
+                console.log(data, "getCommentsByUrl");
+                if (data.length !== 0) {
+                    setIsEmpty(1);
+                    data.map(comment => {
+                        const date = new Date();
+                        date.setTime(comment.date);
+                        let isInArray = false;
+                        let index = -1;
+
+                        for (let i = 0; i < commentArray.length; i++) {
+                            if (date.getMonth() + '-' + date.getDate() === commentArray[i].date) {
+                                isInArray = true;
+                                index = i;
+                            }
+                        }
+
+                        if (isInArray === true) {
+                            commentArray[index].times++;
+                        } else {
+                            commentArray.push({date: date.getMonth() + '-' + date.getDate(), times: 1});
+                        }
+                    });
+
+                    console.log('commentArray: ', commentArray);
+                    setResult(commentArray);
+                } else {
+                    setIsEmpty(0);
+                }
+            });
+    }
+
+    const renderLineChart = (
+        <LineChart
+            width={500}
+            height={400}
+            data={result}
+            margin={{top: 30, right: 15, left: 15, bottom: 15}}>
+            <Line type="monotone" dataKey="times" stroke="#292933"/>
+            <XAxis dataKey="date">
+                <Label value="Date" position="bottom" offset={0}/>
+            </XAxis>
+            <YAxis allowDecimals={false}
+                   label={{value: 'Times', angle: -90, position: 'insideLeft'}}
+            />
+            <Tooltip/>
+        </LineChart>
+    );
 
     return (
         <div>
@@ -292,7 +356,8 @@ function SingleView() {
                     <Button className="btn_comment" onClick={handelPostComment}>
                         Post comment
                     </Button>
-                    <h4 className="comments">Comments</h4>
+                    {isEmpty === 1 && <h4 className="comments">Comments</h4>}
+                    {isEmpty !== 1 && <h4 className="empty-comments">Comments</h4>}
                 </div>
             )}
 
@@ -300,6 +365,11 @@ function SingleView() {
                 <Comment key={comment.date}
                          comment={comment}/>)}
 
+            {isEmpty === 1 &&
+                <div className="comment_graph_container">
+                    <p className="comment_graph_title">A graph showing comments over time</p>
+                    <div className="comment_graph">{renderLineChart}</div>
+                </div>}
             <Modal show={showLogin} onHide={handleCloseLogin}>
                 <Modal.Header closeButton>
                     <Modal.Title>Login</Modal.Title>
@@ -313,6 +383,7 @@ function SingleView() {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
         </div>
     )
 }

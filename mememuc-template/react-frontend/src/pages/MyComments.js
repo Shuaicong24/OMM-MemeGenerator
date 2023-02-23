@@ -78,6 +78,7 @@ class MyComments extends React.Component {
                     return <this.Comment key={comment.date}
                                          comment={comment}/>
                 })}
+                <div className="bottom-space"/>
             </div>
         );
     }

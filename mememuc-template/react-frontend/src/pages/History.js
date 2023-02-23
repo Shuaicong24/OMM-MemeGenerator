@@ -89,6 +89,7 @@ class History extends React.Component {
                 {this.state.isEmpty === 0 && <p className="no-data-text">
                     You haven't created any memes yet,<br/> try to create some with one of the generators in the
                     "Create" dropdown using your creativity!</p>}
+                <div className="bottom-space"/>
             </div>
         );
     }

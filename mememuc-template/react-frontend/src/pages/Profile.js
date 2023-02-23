@@ -80,7 +80,7 @@ class Profile extends React.Component {
                     {this.state.commentsIsEmpty !== -1 &&
                         <span className="data">Comments: {this.state.comments.length}</span>}
                 </div>
-
+                <div className="bottom-space"/>
             </div>
         );
     }

@@ -996,7 +996,7 @@ function MemeMaker() {
                     </Button>
                 </Modal.Footer>
             </Modal>
-
+            <div className="bottom-space"/>
         </div>
     )
 }

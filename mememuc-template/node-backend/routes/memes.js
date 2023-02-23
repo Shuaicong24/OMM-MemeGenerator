@@ -139,13 +139,29 @@ router.post("/upload-comment", async function (req, res) {
     }
 });
 
-router.get("/get-comments-for-a-meme", async function (req, res, next) {
+router.get("/get-comments-for-a-meme-sort-by-date", async function (req, res, next) {
     console.log('Get comments for a certain meme');
     if (req.query.url) {
         const param = req.query.url;
         console.log('Meme url: ', param);
 
         commentModel.find({url: param.toString()}).sort({date: -1})
+            .then((data) => {
+                console.log(`Comments by meme using url=${param}, sorting by date: ${data}`);
+                res.send(data);
+            })
+            .catch((error) => {
+                res.status(500).send(error);
+            });
+    }
+});
+
+router.get("/get-comments-for-a-meme", async function (req, res, next) {
+    console.log('Get comments for a certain meme');
+    if (req.query.url) {
+        const param = req.query.url;
+
+        commentModel.find({url: param.toString()})
             .then((data) => {
                 console.log(`Comments by meme using url=${param}: ${data}`);
                 res.send(data);

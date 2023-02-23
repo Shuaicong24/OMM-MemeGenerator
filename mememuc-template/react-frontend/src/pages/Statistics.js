@@ -12,7 +12,6 @@ function Statistics() {
     const [data, setData] = useState([]);
     const [result, setResult] = useState([]);
     const [isEmpty, setIsEmpty] = useState(-1);
-    let array = [];
 
     const renderLineChart = (
         <LineChart
@@ -36,6 +35,7 @@ function Statistics() {
     }, []);
 
     const fetchPublicMemes = () => {
+        let array = [{date: '', times: 0}];
         fetch("http://localhost:3002/memes/get-public-memes")
             .then((res) => res.json())
             .then((data) => {
@@ -46,26 +46,20 @@ function Statistics() {
                     data.map(data => {
                         const date = new Date();
                         date.setTime(data.date);
+                        let isInArray = false;
+                        let index = -1;
 
-                        if (array.length === 0) {
-                            array.push({date: date.getMonth() + '-' + date.getDate(), times: 1});
+                        for (let i = 0; i < array.length; i++) {
+                            if (date.getMonth() + '-' + date.getDate() === array[i].date) {
+                                isInArray = true;
+                                index = i;
+                            }
+                        }
+
+                        if (isInArray === true) {
+                            array[index].times++;
                         } else {
-                            let isInArray = false;
-                            let index = -1;
-
-                            for (let i = 0; i < array.length; i++) {
-                                if (date.getMonth() + '-' + date.getDate() === array[i].date) {
-                                    isInArray = true;
-                                    index = i;
-                                }
-                            }
-
-                            if (isInArray === true) {
-                                array[index].times++;
-                            } else {
-                                array.push({date: date.getMonth() + '-' + date.getDate(), times: 1});
-                            }
-
+                            array.push({date: date.getMonth() + '-' + date.getDate(), times: 1});
                         }
                     });
 
@@ -78,20 +72,22 @@ function Statistics() {
     }
 
     return (
-        <div className="api">
-            <div>
-                <p className="api_caption">Statistics</p>
-                <div className="line"></div>
-                <p className="text">Some generated statistical graphs are placed below, each representing different
-                    data.</p>
+        <div>
+            <div className="api">
+                <div>
+                    <p className="api_caption">Statistics</p>
+                    <div className="line"></div>
+                </div>
+                <div>
+                    <p className="uploads_title">A global graph showing uploads over time</p>
+                    {isEmpty === 0 && <p className="no-data-text">
+                        No available data.</p>}
+                    {isEmpty === 1 && <div className="graph">{renderLineChart}</div>}
+                </div>
             </div>
-            <div>
-                <p className="title">A global graph showing uploads over time</p>
-                {isEmpty === 0 && <p className="no-data-text">
-                    No available data.</p>}
-                {isEmpty === 1 && <div className="graph">{renderLineChart}</div>}
-            </div>
+            <div className="bottom-space"/>
         </div>
+
     );
 }
 
