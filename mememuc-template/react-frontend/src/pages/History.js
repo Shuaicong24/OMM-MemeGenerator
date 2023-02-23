@@ -42,7 +42,6 @@ class History extends React.Component {
                     this.setState({isEmpty: 0});
                 }
                 console.log(this.state.memes.length);
-                console.log(this.state.isEmpty);
                 console.log(data, "getMemeBySomeone");
             });
     }
