@@ -1,6 +1,6 @@
 .api {
     width: 80%;
-    margin: 10px auto;  /*set div center*/
+    margin: 10px auto; /*set div center*/
     border-color: lightgray;
     border-style: solid;
     border-width: 1px;
@@ -65,4 +65,8 @@ th, td {
 
 .b-span {
     margin-left: 60px;
+}
+
+.graph {
+    margin: 10px auto auto 3%;
 }
