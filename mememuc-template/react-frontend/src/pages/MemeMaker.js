@@ -444,6 +444,7 @@ function MemeMaker() {
 
     function handleLink() {
         localStorage.setItem("memeFrom", "MemeMaker");
+        localStorage.setItem("sort", 'default');
         if (permission === 'unlisted') {
             localStorage.setItem("isPublic", "false");
         }

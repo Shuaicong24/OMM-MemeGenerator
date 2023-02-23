@@ -46,6 +46,7 @@ function Overview() {
 
     const handleMeme = () => {
         window.localStorage.setItem("memeFrom", "Overview");
+        window.localStorage.setItem("sort", sort);
     }
 
     const handleDefault = () => {

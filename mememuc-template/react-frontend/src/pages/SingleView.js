@@ -22,10 +22,22 @@ function SingleView() {
     const [showLogin, setShowLogin] = useState(false);
     const [comments, setComments] = useState([]);
 
-
     useEffect(() => {
         fetchAllData();
-        fetchPublicData();
+        console.log('sort: ', localStorage.getItem('sort'));
+        switch (localStorage.getItem("sort")) {
+            case 'latest':
+                fetchPublicDataByDate();
+                break;
+            case 'title':
+                fetchPublicDataByTitle();
+                break;
+            case 'latest-one-day':
+                fetchPublicDataByDateInOneDay();
+                break;
+            default:
+                fetchPublicDataByDefault();
+        }
         getCommentsByUrl(`http://localhost:3000/m/${id}`);
     }, [])
 
@@ -37,10 +49,37 @@ function SingleView() {
             });
     }
 
-    const fetchPublicData = () => {
+    const fetchPublicDataByDefault = () => {
         fetch("http://localhost:3002/memes/get-public-memes")
             .then(response => response.json())
             .then(data => {
+                setPublicData(data);
+                confirmFirstMemeAndIndex(data);
+            });
+    }
+
+    const fetchPublicDataByDate = () => {
+        fetch("http://localhost:3002/memes/get-public-memes-sort-by-date")
+            .then((res) => res.json())
+            .then((data) => {
+                setPublicData(data);
+                confirmFirstMemeAndIndex(data);
+            });
+    }
+
+    const fetchPublicDataByTitle = () => {
+        fetch("http://localhost:3002/memes/get-public-memes-sort-by-title")
+            .then((res) => res.json())
+            .then((data) => {
+                setPublicData(data);
+                confirmFirstMemeAndIndex(data);
+            });
+    }
+
+    const fetchPublicDataByDateInOneDay = () => {
+        fetch("http://localhost:3002/memes/get-public-memes-sort-by-date-in-one-day")
+            .then((res) => res.json())
+            .then((data) => {
                 setPublicData(data);
                 confirmFirstMemeAndIndex(data);
             });

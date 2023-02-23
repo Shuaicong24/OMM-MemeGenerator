@@ -49,6 +49,7 @@ class History extends React.Component {
 
     handleMeme() {
         localStorage.setItem("memeFrom", "History");
+        localStorage.setItem("sort", 'default');
     }
 
     Meme = ({meme}) => {
