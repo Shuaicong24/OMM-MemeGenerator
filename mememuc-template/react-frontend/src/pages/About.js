@@ -11,7 +11,7 @@ function About() {
                     <p className="text">
                         Here is a group project called "Meme Generator" for the Online Multimedia Lecture in the winter semester 2022/23 at LMU Munich.
                         It is a website similar to <a href={"https://imgflip.com/"}>imgflip</a>. The main functions include creating and viewing memes,
-                        commenting on them, managing accounts, data statistics, and providing API, etc.<br/>
+                        commenting on them, managing accounts, data statistics, and providing APIs, etc.<br/>
                     </p>
                     <p className="text">Refer to the GitHub website for specific code information: <a href={"https://github.com/Shuaicong24/OMM-MemeGenerator"}>OMM-MemeGenerator</a>
                     </p>
