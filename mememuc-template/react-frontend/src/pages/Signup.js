@@ -40,6 +40,11 @@ class Signup extends React.Component {
                 console.log(data, "userRegister");
                 if (data.status === "ok") {
                     alert("Sign up successful");
+                    window.location.href = "/sign-in";
+                } else {
+                    alert(data.error);
+                    document.getElementById("username").value = '';
+                    document.getElementById("password").value = '';
                 }
             });
     }
@@ -52,6 +57,7 @@ class Signup extends React.Component {
                 <div className="mb-3">
                     <label>Username</label>
                     <input
+                        id="username"
                         type="text"
                         required={true}
                         minLength={3}
@@ -64,6 +70,7 @@ class Signup extends React.Component {
                 <div className="mb-3">
                     <label>Password</label>
                     <input
+                        id="password"
                         type="password"
                         required={true}
                         minLength={6}

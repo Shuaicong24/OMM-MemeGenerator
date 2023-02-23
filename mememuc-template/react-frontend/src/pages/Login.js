@@ -35,9 +35,12 @@ function Login() {
         })
             .then((res) => res.json())
             .then((data) => {
-                console.log(data, "userLogin");
                 localStorage.setItem("logStatus", "notLogged");
+                console.log(data, "userLogin");
 
+                if (data.status === 'error') {
+                    alert(data.error);
+                }
                 if (data.status === "ok") {
                     alert("Login successful");
                     window.localStorage.setItem("logStatus", "logged");
