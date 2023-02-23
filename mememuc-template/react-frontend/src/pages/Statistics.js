@@ -75,7 +75,7 @@ function Statistics() {
         <div>
             <div className="api">
                 <div>
-                    <p className="api_caption">Statistics</p>
+                    <p className="api-caption">Statistics</p>
                     <div className="line"></div>
                 </div>
                 <div>
