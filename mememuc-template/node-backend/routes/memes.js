@@ -51,6 +51,10 @@ router.post("/upload-meme", upload.single("file"), async (req, res) => {
     }
 });
 
+router.post("/store-meme-locally", upload.single("file"), async (req, res) => {
+    console.log('local meme: ', req.file, ', ', req.body);
+});
+
 router.get("/get-memes", async function (req, res, next) {
     console.log('Get request for all memes');
     if (req.query.username) {

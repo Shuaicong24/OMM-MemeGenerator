@@ -44,7 +44,10 @@
  * https://stackoverflow.com/questions/1874560/how-to-use-javascript-to-change-div-backgroundcolor
  * Icons:
  * https://react-icons.github.io/react-icons/icons?name=bs
- *
+ * Local stuff:
+ * https://www.w3schools.com/tags/tryit.asp?filename=tryhtml5_input_type_checkbox
+ * https://stackoverflow.com/questions/9887360/how-can-i-check-if-a-checkbox-is-checked
+ * https://www.w3schools.com/jsref/tryit.asp?filename=tryjsref_style_visibility
  * */
 
 import React, {useEffect, useRef, useState} from "react";
@@ -126,6 +129,10 @@ function MemeMaker() {
     const [hexMiddle, setHexMiddle] = useState("#000000");
     const [hexBottom, setHexBottom] = useState("#000000");
     const [first, setFirst] = useState(true);
+
+    const [local, setLocal] = useState(false);
+    const [showGenerateLocal, setShowGenerateLocal] = useState(false);
+    const [doneLocal, setDoneLocal] = useState('');
 
     const handleCloseDraw = () => {
         setShowDraw(false);
@@ -676,6 +683,54 @@ function MemeMaker() {
         }
     }
 
+    const handleLocalCheck = () => {
+        if (document.getElementById("local").checked) {
+            setLocal(true);
+        } else {
+            setLocal(false);
+        }
+    }
+
+    const handleShowGenerateLocal = () => {
+        const canvas = canvasRef.current;
+        if (meme != null && canvas.width !== 0) {
+            if (!title) {
+                setTitle(caption);
+            }
+
+            setShowGenerateLocal(true);
+            const dataURL = canvas.toDataURL();
+            setDoneLocal(dataURL);
+        }
+        storeMemeLocally();
+    }
+
+    const storeMemeLocally = () => {
+        // store meme locally, not to db
+        const formData = new FormData();
+        const dataURL = canvasRef.current.toDataURL();
+        formData.append("file", convertDataToBlob(dataURL));
+
+        fetch(" http://localhost:3002/memes/store-meme-locally", {
+            method: "POST",
+            body: formData,
+        }).then((res) => res.json())
+            .then((data) => {
+                console.log(data, " ,storeMemeLocally");
+            });
+    }
+
+    const handleCloseGenerateLocal = () => {
+        setShowGenerateLocal(false);
+    }
+
+    const handleDownloadLocal = () => {
+        const doneImg = document.getElementById("done-local");
+        let imgPath = doneImg.getAttribute('src');
+        let fileName = getFileName(imgPath);
+        saveAs(imgPath, fileName)
+    }
+
     return (
         <div>
             <div className="template-area">
@@ -860,30 +915,42 @@ function MemeMaker() {
                                                             onClick={handleTextDownRight}/>
                             <br/>
                             <Button onClick={clear}>Clear</Button>
-                            <div>
-                                Set meme's permission
-                                <div>
-                                    <input type="radio" name="privacy" value="public" id="public"
-                                           checked={permission === "public"} onChange={handlePermission}/>
-                                    <label htmlFor="public">Public <span style={{'fontSize': '12px'}}>(Provide single view link, show on Overview)</span></label>
-                                </div>
-                                <div>
-                                    <input type="radio" name="privacy" value="unlisted" id="unlisted"
-                                           checked={permission === "unlisted"} onChange={handlePermission}/>
-                                    <label htmlFor="unlisted">Unlisted <span style={{'fontSize': '12px'}}>(Provide single view link, doesn't show on Overview)</span></label>
-                                </div>
-                                <div>
-                                    <input type="radio" name="privacy" value="private" id="private"
-                                           checked={permission === "private"} onChange={handlePermission}/>
-                                    <label htmlFor="private">Private <span style={{'fontSize': '12px'}}>(Only for download, and visible to the creator after login)</span></label>
-                                </div>
-                            </div>
-                            <Button id="generate" type="submit" onClick={handleShowGenerate}>Generate meme</Button>
+                            <br/>
 
+                            Make meme locally stored
+                            <input type="checkbox" id="local" name="local" value="local"
+                                   onChange={handleLocalCheck}/>
+                            {local === true &&
+                                <div>
+                                    <Button id="generate-local" type="submit" onClick={handleShowGenerateLocal}>Generate
+                                        meme</Button> </div>}
+
+                            {local === false &&
+                                <div>
+                                    <div id="permission-setting">
+                                        Set meme's permission
+                                        <div>
+                                            <input type="radio" name="privacy" value="public" id="public"
+                                                   checked={permission === "public"} onChange={handlePermission}/>
+                                            <label htmlFor="public">Public <span style={{'fontSize': '12px'}}>(Provide single view link, show on Overview)</span></label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="privacy" value="unlisted" id="unlisted"
+                                                   checked={permission === "unlisted"} onChange={handlePermission}/>
+                                            <label htmlFor="unlisted">Unlisted <span style={{'fontSize': '12px'}}>(Provide single view link, doesn't show on Overview)</span></label>
+                                        </div>
+                                        <div>
+                                            <input type="radio" name="privacy" value="private" id="private"
+                                                   checked={permission === "private"} onChange={handlePermission}/>
+                                            <label htmlFor="private">Private <span style={{'fontSize': '12px'}}>(Only for download, and visible to the creator after login)</span></label>
+                                        </div>
+                                    </div>
+                                    <Button id="generate" type="submit" onClick={handleShowGenerate}>Generate
+                                        meme</Button>
+                                </div>
+                            }
                         </div>
                     </div>
-
-
                 </form>
 
             </div>
@@ -996,6 +1063,22 @@ function MemeMaker() {
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+            <Modal show={showGenerateLocal} onHide={handleCloseGenerateLocal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Result</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>{title}</p>
+                    <img id="done-local" className="done" alt={"result-meme-local"} src={doneLocal}/>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="primary" onClick={handleDownloadLocal}>
+                        Download
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
             <div className="bottom-space"/>
         </div>
     )
