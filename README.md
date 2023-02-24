@@ -1,5 +1,7 @@
 # OMM-MemeGenerator
 
+Please note that the existence of the ```memes``` folder located in ```node-backend/public``` is necessary in order to store the generated memes.
+
 Additional npm dependencies are listed here and can be installed in the appropriate folder using the ```npm i xxx``` command.
 
 react-backend:
